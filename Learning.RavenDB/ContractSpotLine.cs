@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NodaTime;
 
-namespace RavenDBHacking
+namespace Learning.RavenDB
 {
     public class ContractSpotLine
     {

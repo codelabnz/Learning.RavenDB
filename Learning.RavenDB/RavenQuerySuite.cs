@@ -6,7 +6,7 @@ using Raven.Client;
 using Raven.Tests.Helpers;
 using Xunit;
 
-namespace RavenDBHacking
+namespace Learning.RavenDB
 {
     public class QueryRaven : RavenTestBase
     {

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Raven.Client.Indexes;
 
-namespace RavenDBHacking
+namespace Learning.RavenDB
 {
     public class SpotLines_ByStationCode : AbstractIndexCreationTask<ContractSpotLine>
     {

@@ -7,7 +7,7 @@ using Raven.Client.NodaTime;
 using Raven.Tests.Helpers;
 using Xunit;
 
-namespace RavenDBHacking
+namespace Learning.RavenDB
 {
     public class ExecuteRavenQueryAgainstSimpleStaticIndex : RavenTestBase
     {

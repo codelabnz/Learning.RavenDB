@@ -2,7 +2,7 @@
 using Raven.Abstractions.Indexing;
 using Raven.Client.Indexes;
 
-namespace RavenDBHacking
+namespace Learning.RavenDB
 {
     public class SpotLines_ByStationDescription_FullText : AbstractIndexCreationTask<ContractSpotLine>
     {

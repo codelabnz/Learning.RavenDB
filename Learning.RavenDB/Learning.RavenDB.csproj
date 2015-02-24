@@ -7,8 +7,8 @@
     <ProjectGuid>{BFACEC8A-17E9-4DB3-99DE-CAE369845B92}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RavenDBHacking</RootNamespace>
-    <AssemblyName>RavenDBHacking</AssemblyName>
+    <RootNamespace>Learning.RavenDB</RootNamespace>
+    <AssemblyName>Learning.RavenDB</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>8e9dbba0</NuGetPackageImportStamp>

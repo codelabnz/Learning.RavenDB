@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RavenDBHacking", "RavenDBHacking\RavenDBHacking.csproj", "{BFACEC8A-17E9-4DB3-99DE-CAE369845B92}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learning.RavenDB", "Learning.RavenDB\Learning.RavenDB.csproj", "{BFACEC8A-17E9-4DB3-99DE-CAE369845B92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

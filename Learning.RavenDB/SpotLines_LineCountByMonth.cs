@@ -2,7 +2,7 @@
 using NodaTime;
 using Raven.Client.Indexes;
 
-namespace RavenDBHacking
+namespace Learning.RavenDB
 {
     public class SpotLines_LineCountByMonth : AbstractIndexCreationTask<ContractSpotLine, SpotLines_LineCountByMonth.ReduceResult>
     {
