@@ -1,0 +1,13 @@
+obj
+bin
+*.csproj.user
+*.suo
+*.msi
+*.scc
+*.xap
+*.exe
+*.pdb
+*.nupkg
+*.rdl.data
+packages
+!packages/repositories.config
