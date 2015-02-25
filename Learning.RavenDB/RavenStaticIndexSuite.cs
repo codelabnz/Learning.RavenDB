@@ -136,7 +136,7 @@ namespace Learning.RavenDB
                     var linesForMonth = session.Query<ContractSpotLine, SpotLines_ByStationDescription_FullText>()
                                                 .Customize(q => q.WaitForNonStaleResults(TimeSpan.FromSeconds(5)))
                                                 .Search(c => c.StationDescription, "WKO")
-                                                .Search(c => c.StationDescription, "MCH", options: SearchOptions.Not | SearchOptions.And)
+                                                .Search(c => c.StationDescription, "MCH", options: SearchOptions.And | SearchOptions.Not)
                                                 .Statistics(out statistics)
                                                 .ToList();
 
@@ -172,9 +172,28 @@ namespace Learning.RavenDB
                     var spotLine = new ContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
+                        StationDescription = "WKOO",
+                        Contract = new Contract { Code = "11223344", Id = "contracts/12345" }
+                    };
+
+                    session.Store(spotLine);
+
+                    spotLine = new ContractSpotLine
+                    {
+                        Month = new LocalDate(2015, 02, 01),
                         StationDescription = "WKOMORE",
                         Contract = new Contract { Code = "11223344", Id = "contracts/12345" }
                     };
+
+                    session.Store(spotLine);
+
+                    spotLine = new ContractSpotLine
+                    {
+                        Month = new LocalDate(2015, 02, 01),
+                        StationDescription = "WKO",
+                        Contract = new Contract { Code = "11223344", Id = "contracts/12345" }
+                    };
+
                     session.Store(spotLine);
                     session.SaveChanges();
                 }
@@ -190,7 +209,7 @@ namespace Learning.RavenDB
                     var linesForMonth = session.Query<ContractSpotLine, SpotLines_ByStationDescription_FullText>()
                                             .Customize(q => q.WaitForNonStaleResults(TimeSpan.FromSeconds(5)))
                                             .Statistics(out statistics)
-                                            .Where(c => c.StationDescription == "WKOE");
+                                            .Where(c => c.StationDescription == "wkoe");
 
                     var resultCount = linesForMonth.ToList().Count;
                     Assert.Equal("SpotLines/ByStationDescription/FullText", statistics.IndexName);
