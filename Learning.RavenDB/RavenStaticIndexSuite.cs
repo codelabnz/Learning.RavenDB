@@ -99,6 +99,9 @@ namespace Learning.RavenDB
 
     public class ExecuteRavenQueryAgainstFullTextAnalysedStaticIndex : RavenTestBase
     {
+        // the index used in this test uses Lucene StandardAnalyzer which breaks the station description in
+        // to tokens and so allows searching for a token part of the description. See the index definition
+        // SpotLines_ByStationDescription_FullText for a discussion.
         [Fact]
         public void QueryFullTextStaticIndex()
         {
@@ -160,6 +163,9 @@ namespace Learning.RavenDB
 
     public class ExecuteRavenQueryAndUseSuggestionsOfStaticIndex : RavenTestBase
     {
+        // the index used in this test uses Lucene StandardAnalyzer which lower cases the tokens in the search field. This means
+        // that we must pass a lowercase string in the where clause to successfully get suggestions. See the index 
+        // definition SpotLines_ByStationDescription_FullText for a discussion.
         [Fact]
         public void QueryAndUseSuggestsionsOfStaticIndex()
         {
