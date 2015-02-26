@@ -112,6 +112,7 @@
     <Compile Include="SetupTests.cs" />
     <Compile Include="SpotLines_ByStationCode.cs" />
     <Compile Include="SpotLines_ByStationDescription_FullText.cs" />
+    <Compile Include="SpotLines_ByFirstStationStored.cs" />
     <Compile Include="SpotLines_LineCountByMonth.cs" />
     <Compile Include="SpotLines_ByMonth.cs" />
   </ItemGroup>
