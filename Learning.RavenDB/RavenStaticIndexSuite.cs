@@ -221,7 +221,7 @@ namespace Learning.RavenDB
                     Assert.Equal("SpotLines/ByStationDescription/FullText", statistics.IndexName);
                     Assert.Equal(0, resultCount);
 
-                    if(resultCount <= 0)
+                    if (resultCount <= 0)
                     {
                         var suggestionResult = linesForMonth.Suggest();
                         foreach (var suggestion in suggestionResult.Suggestions)
@@ -231,4 +231,53 @@ namespace Learning.RavenDB
             }
         }
     }
+
+    //public class ExecuteRavenQueryAgainstDynamicFields : RavenTestBase
+    //{
+    //    [Fact]
+    //    public void QueryDynamicFields()
+    //    {
+    //        var station = new Station
+    //        {
+    //            Code = "WKOMORE"
+    //        };
+
+    //        var station2 = new Station
+    //        {
+    //            Code = "WKOAKL"
+    //        };
+
+    //        using (var documentStore = NewDocumentStore())
+    //        {
+    //            documentStore.ConfigureForNodaTime();
+
+    //            using (var session = documentStore.OpenSession())
+    //            {
+    //                session.Store(station);
+    //                session.Store(station2);
+
+    //                var spotLine = new ContractSpotLine
+    //                {
+    //                    Month = new LocalDate(2015, 02, 01),
+    //                    Contract = new Contract { Code = "11223344", Id = "contracts/12345" },
+    //                    StationIds = new[] { station.Id, station2.Id }
+    //                };
+    //                session.Store(spotLine);
+    //                session.SaveChanges();
+    //            }
+
+    //            new SpotLines_ByStationAsDynamicField().Execute(documentStore);
+
+    //            using (var session = documentStore.OpenSession())
+    //            {
+    //                var results = session.Advanced.LuceneQuery<ContractSpotLine>("SpotLines/ByStationAsDynamicField")
+    //                                        .WaitForNonStaleResults(TimeSpan.FromSeconds(5))
+    //                                        .WhereEquals("StationOne", "WKOMORE")
+    //                                        .ToList();
+
+    //                Assert.Equal(1, results.Count);
+    //            }
+    //        }
+    //    }
+    //}
 }

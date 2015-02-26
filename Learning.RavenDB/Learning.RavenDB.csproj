@@ -110,6 +110,7 @@
     <Compile Include="RavenStaticIndexSuite.cs" />
     <Compile Include="RavenTransformerSuite.cs" />
     <Compile Include="SetupTests.cs" />
+    <Compile Include="SpotLines_ByStationAsDynamicField.cs" />
     <Compile Include="SpotLines_ByStationCode.cs" />
     <Compile Include="SpotLines_ByStationDescription_FullText.cs" />
     <Compile Include="SpotLines_ByFirstStationStored.cs" />
