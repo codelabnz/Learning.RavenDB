@@ -104,9 +104,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContractSpotLine.cs" />
+    <Compile Include="ContractSpotLineStationTransformer.cs" />
     <Compile Include="RavenQuerySuite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenStaticIndexSuite.cs" />
+    <Compile Include="RavenTransformerSuite.cs" />
     <Compile Include="SetupTests.cs" />
     <Compile Include="SpotLines_ByStationCode.cs" />
     <Compile Include="SpotLines_ByStationDescription_FullText.cs" />

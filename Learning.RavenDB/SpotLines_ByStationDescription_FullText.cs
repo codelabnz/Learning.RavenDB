@@ -32,7 +32,6 @@ namespace Learning.RavenDB
             // for this test we are going to assume the Lucene.Net StandardAnalyzer so just the following is required
             // to change from RavenDB default of LowerCase analyzer
             Index(s => s.StationDescription, FieldIndexing.Analyzed);
-
         }
     }
 }
