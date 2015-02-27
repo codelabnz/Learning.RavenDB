@@ -13,7 +13,7 @@ namespace Learning.RavenDB
         [Fact]
         public void ProjectFromStoredFields()
         {
-            var station = new Station
+            var station = new LearningStation
             {
                 Code = "WKOMORE"
             };
@@ -27,7 +27,7 @@ namespace Learning.RavenDB
                 {
                     session.Store(station);
 
-                    var spotLine = new ContractSpotLine
+                    var spotLine = new LearningContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
                         StationDescription = "Temp Description - Store As Code In Index",
@@ -43,7 +43,7 @@ namespace Learning.RavenDB
                 {
                     // transform ContractSpotLine results to StationViewModel by pulling the available fields
                     // from equivalent index stored fields.
-                    var stations = session.Query<ContractSpotLine, SpotLines_ByFirstStationStored>()
+                    var stations = session.Query<LearningContractSpotLine, SpotLines_ByFirstStationStored>()
                                         .Customize(q => q.WaitForNonStaleResults(TimeSpan.FromSeconds(5)))
                                         .ProjectFromIndexFieldsInto<SpotLines_ByFirstStationStored.StationViewModel>()
                                         .ToList();
@@ -59,7 +59,7 @@ namespace Learning.RavenDB
         [Fact]
         public void TransformQueryResult()
         {
-            var station = new Station
+            var station = new LearningStation
             {
                 Code = "WKOMORE"
             };
@@ -73,7 +73,7 @@ namespace Learning.RavenDB
                 {
                     session.Store(station);
 
-                    var spotLine = new ContractSpotLine
+                    var spotLine = new LearningContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
                         StationIds = new[] { station.Id }
@@ -86,7 +86,7 @@ namespace Learning.RavenDB
 
                 using (var session = documentStore.OpenSession())
                 {
-                    var results = session.Query<ContractSpotLine>()
+                    var results = session.Query<LearningContractSpotLine>()
                                                 .TransformWith<ContractSpotLineStationTransformer, ContractSpotLineStationTransformer.ContractSpotLineStation>()
                                                 .Customize(q => q.WaitForNonStaleResults(TimeSpan.FromSeconds(5)))
                                                 .ToList();
@@ -102,7 +102,7 @@ namespace Learning.RavenDB
         [Fact]
         public void TransformLoadResult()
         {
-            var station = new Station
+            var station = new LearningStation
             {
                 Code = "WKOMORE"
             };
@@ -116,7 +116,7 @@ namespace Learning.RavenDB
                 {
                     session.Store(station);
 
-                    var spotLine = new ContractSpotLine
+                    var spotLine = new LearningContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
                         StationIds = new[] { station.Id }

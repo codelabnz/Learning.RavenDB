@@ -4,7 +4,7 @@ using Raven.Client.Indexes;
 
 namespace Learning.RavenDB
 {
-    public class SpotLines_ByFirstStationStored : AbstractIndexCreationTask<ContractSpotLine>
+    public class SpotLines_ByFirstStationStored : AbstractIndexCreationTask<LearningContractSpotLine>
     {
         public class StationViewModel
         {
@@ -17,7 +17,7 @@ namespace Learning.RavenDB
                                from station in line.StationIds
                                select new
                                {
-                                   StationCode = LoadDocument<Station>(station).Code
+                                   StationCode = LoadDocument<LearningStation>(station).Code
                                };
 
 

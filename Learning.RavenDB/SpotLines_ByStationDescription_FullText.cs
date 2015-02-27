@@ -4,7 +4,7 @@ using Raven.Client.Indexes;
 
 namespace Learning.RavenDB
 {
-    public class SpotLines_ByStationDescription_FullText : AbstractIndexCreationTask<ContractSpotLine>
+    public class SpotLines_ByStationDescription_FullText : AbstractIndexCreationTask<LearningContractSpotLine>
     {
         public SpotLines_ByStationDescription_FullText()
         {

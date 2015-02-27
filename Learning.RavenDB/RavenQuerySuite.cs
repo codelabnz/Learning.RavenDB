@@ -20,7 +20,7 @@ namespace Learning.RavenDB
                     // No static index defined on Month column of ContractSpotLine documents so
                     // this query will generate a dynamic index. That index will be created and populated
                     // by RavenDB before the results of the query are returned.
-                    var spotLines = session.Query<ContractSpotLine>()
+                    var spotLines = session.Query<LearningContractSpotLine>()
                                             .Where(c => c.Month == new LocalDate(2015, 02, 01))
                         // "Safe By Default" enforces default page size of 128
                         //.Take(128)
@@ -42,7 +42,7 @@ namespace Learning.RavenDB
                     // declare the statistics container before registering it with the query
                     // via the .Statistics(out statistics) call
                     RavenQueryStatistics statistics;
-                    var spotLines = session.Query<ContractSpotLine>()
+                    var spotLines = session.Query<LearningContractSpotLine>()
                                             .Statistics(out statistics)
                                             .Where(c => c.Month == new LocalDate(2015, 02, 01))
                                             .ToList();
@@ -65,7 +65,7 @@ namespace Learning.RavenDB
                 using (var session = documentStore.OpenSession())
                 {
                     RavenQueryStatistics statistics;
-                    var spotLines = session.Query<ContractSpotLine>()
+                    var spotLines = session.Query<LearningContractSpotLine>()
                                             .Statistics(out statistics)
                                             .Where(c => c.Month == new LocalDate(2015, 02, 01))
                         // get page 3 assuming page size of 10 - skip 2 pages and take next 10
@@ -95,7 +95,7 @@ namespace Learning.RavenDB
                     RavenQueryStatistics statistics;
                     // as soon as we use Query(), we are hitting an index (dynamic or static) - Load() doesn't use an index
                     // and so results from Load will never be stale
-                    var spotLines = session.Query<ContractSpotLine>()
+                    var spotLines = session.Query<LearningContractSpotLine>()
                                             .Statistics(out statistics)
                                             .Where(c => c.Month == new LocalDate(2015, 02, 01))
                                             .ToList();
@@ -118,7 +118,7 @@ namespace Learning.RavenDB
                 using (var session = documentStore.OpenSession())
                 {
                     RavenQueryStatistics statistics;
-                    var spotLines = session.Query<ContractSpotLine>()
+                    var spotLines = session.Query<LearningContractSpotLine>()
                                             .Statistics(out statistics)
                         // configure the query to wait for non-stale results i.e. the index that is being query
                         // should be up to date (generally shouldn't need this outside of unit tests) -> embrace eventual consistency

@@ -20,10 +20,10 @@ namespace Learning.RavenDB
 
                 using (var session = documentStore.OpenSession())
                 {
-                    var spotLine = new ContractSpotLine
+                    var spotLine = new LearningContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
-                        Contract = new Contract { Code = "11223344", Id = "contracts/12345" }
+                        Contract = new LearningContract { Code = "11223344", Id = "contracts/12345" }
                     };
                     session.Store(spotLine);
                     session.SaveChanges();
@@ -44,7 +44,7 @@ namespace Learning.RavenDB
                     //                            .ToList();
 
                     RavenQueryStatistics statistics;
-                    var linesForMonth = session.Query<ContractSpotLine>()
+                    var linesForMonth = session.Query<LearningContractSpotLine>()
                                             .Statistics(out statistics)
                                             .Customize(q => q.WaitForNonStaleResults(TimeSpan.FromSeconds(5)))
                                             .Where(c => c.Month == monthToQuery)
@@ -68,10 +68,10 @@ namespace Learning.RavenDB
 
                 using (var session = documentStore.OpenSession())
                 {
-                    var spotLine = new ContractSpotLine
+                    var spotLine = new LearningContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
-                        Contract = new Contract { Code = "11223344", Id = "contracts/12345" }
+                        Contract = new LearningContract { Code = "11223344", Id = "contracts/12345" }
                     };
                     session.Store(spotLine);
                     session.SaveChanges();
@@ -111,11 +111,11 @@ namespace Learning.RavenDB
 
                 using (var session = documentStore.OpenSession())
                 {
-                    var spotLine = new ContractSpotLine
+                    var spotLine = new LearningContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
                         StationDescription = "WKO(MORE, ROCK, EDGE), AKL(MORE, ROCK, EDGE)",
-                        Contract = new Contract { Code = "11223344", Id = "contracts/12345" }
+                        Contract = new LearningContract { Code = "11223344", Id = "contracts/12345" }
                     };
                     session.Store(spotLine);
                     session.SaveChanges();
@@ -136,7 +136,7 @@ namespace Learning.RavenDB
                     //                            .Statistics(out statistics)
                     //                            .ToList();
                     // above is explicit use of LuceneQuery and is equivalent to:
-                    var linesForMonth = session.Query<ContractSpotLine, SpotLines_ByStationDescription_FullText>()
+                    var linesForMonth = session.Query<LearningContractSpotLine, SpotLines_ByStationDescription_FullText>()
                                                 .Customize(q => q.WaitForNonStaleResults(TimeSpan.FromSeconds(5)))
                                                 .Search(c => c.StationDescription, "WKO")
                                                 .Search(c => c.StationDescription, "MCH", options: SearchOptions.And | SearchOptions.Not)
@@ -150,7 +150,7 @@ namespace Learning.RavenDB
                     //                        .LuceneQuery<ContractSpotLine>("SpotLines/ByStationDescription/FullText")
                     //                        .Where("StationDescription:WKO AND StationDescription:MCH")
                     //                        .ToList();
-                    linesForMonth = session.Query<ContractSpotLine, SpotLines_ByStationDescription_FullText>()
+                    linesForMonth = session.Query<LearningContractSpotLine, SpotLines_ByStationDescription_FullText>()
                                             .Search(c => c.StationDescription, "WKO")
                                             .Search(c => c.StationDescription, "MCH", options: SearchOptions.And)
                                             .ToList();
@@ -175,29 +175,29 @@ namespace Learning.RavenDB
 
                 using (var session = documentStore.OpenSession())
                 {
-                    var spotLine = new ContractSpotLine
+                    var spotLine = new LearningContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
                         StationDescription = "WKOO",
-                        Contract = new Contract { Code = "11223344", Id = "contracts/12345" }
+                        Contract = new LearningContract { Code = "11223344", Id = "contracts/12345" }
                     };
 
                     session.Store(spotLine);
 
-                    spotLine = new ContractSpotLine
+                    spotLine = new LearningContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
                         StationDescription = "WKOMORE",
-                        Contract = new Contract { Code = "11223344", Id = "contracts/12345" }
+                        Contract = new LearningContract { Code = "11223344", Id = "contracts/12345" }
                     };
 
                     session.Store(spotLine);
 
-                    spotLine = new ContractSpotLine
+                    spotLine = new LearningContractSpotLine
                     {
                         Month = new LocalDate(2015, 02, 01),
                         StationDescription = "WKO",
-                        Contract = new Contract { Code = "11223344", Id = "contracts/12345" }
+                        Contract = new LearningContract { Code = "11223344", Id = "contracts/12345" }
                     };
 
                     session.Store(spotLine);
@@ -212,7 +212,7 @@ namespace Learning.RavenDB
                     var monthToQuery = new LocalDate(2015, 02, 01);
 
                     RavenQueryStatistics statistics;
-                    var linesForMonth = session.Query<ContractSpotLine, SpotLines_ByStationDescription_FullText>()
+                    var linesForMonth = session.Query<LearningContractSpotLine, SpotLines_ByStationDescription_FullText>()
                                             .Customize(q => q.WaitForNonStaleResults(TimeSpan.FromSeconds(5)))
                                             .Statistics(out statistics)
                                             .Where(c => c.StationDescription == "wkoe");

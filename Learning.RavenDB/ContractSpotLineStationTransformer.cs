@@ -3,7 +3,7 @@ using Raven.Client.Indexes;
 
 namespace Learning.RavenDB
 {
-    public class ContractSpotLineStationTransformer : AbstractTransformerCreationTask<ContractSpotLine>
+    public class ContractSpotLineStationTransformer : AbstractTransformerCreationTask<LearningContractSpotLine>
     {
         public class ContractSpotLineStation
         {
@@ -16,7 +16,7 @@ namespace Learning.RavenDB
                                             from station in line.StationIds
                                             select new
                                             {
-                                                Station = LoadDocument<Station>(station).Code
+                                                Station = LoadDocument<LearningStation>(station).Code
                                             };
         }
     }

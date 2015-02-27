@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BFACEC8A-17E9-4DB3-99DE-CAE369845B92}</ProjectGuid>
+    <ProjectGuid>{8FD7C01D-E626-49AE-A139-1F074CD09C37}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Learning.RavenDB</RootNamespace>
-    <AssemblyName>Learning.RavenDB</AssemblyName>
+    <RootNamespace>Test.Prototype.One</RootNamespace>
+    <AssemblyName>Test.Prototype.One</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>8e9dbba0</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -54,37 +53,38 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NodaTime, Version=1.3.0.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NodaTime">
       <HintPath>..\packages\NodaTime.1.3.0\lib\net35-Client\NodaTime.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Abstractions, Version=2.5.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RavenDB.Database.2.5.2956\lib\net45\Raven.Abstractions.dll</HintPath>
+    <Reference Include="NodaTime.Testing">
+      <HintPath>..\packages\NodaTime.Testing.1.3.0\lib\net35-Client\NodaTime.Testing.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Embedded, Version=2.5.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.Core">
+      <HintPath>..\packages\NServiceBus.5.0.0\lib\net45\NServiceBus.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Testing">
+      <HintPath>..\packages\NServiceBus.Testing.5.0.4\lib\net45\NServiceBus.Testing.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Abstractions">
+      <HintPath>..\packages\RavenDB.Client.2.5.2956\lib\net45\Raven.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Embedded">
       <HintPath>..\packages\RavenDB.Embedded.2.5.2956\lib\net45\Raven.Client.Embedded.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Lightweight, Version=2.5.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Raven.Client.Lightweight">
       <HintPath>..\packages\RavenDB.Client.2.5.2956\lib\net45\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.NodaTime, Version=2.5.10.42106, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RavenDB.Client.NodaTime.2.5.10\lib\net40-Client\Raven.Client.NodaTime.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Database, Version=2.5.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Raven.Database">
       <HintPath>..\packages\RavenDB.Database.2.5.2956\lib\net45\Raven.Database.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Server, Version=2.5.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Raven.Server">
       <HintPath>..\packages\RavenDB.Tests.Helpers.2.5.2956\lib\net45\Raven.Server.exe</HintPath>
     </Reference>
-    <Reference Include="Raven.Tests.Helpers, Version=2.5.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Raven.Tests.Helpers">
       <HintPath>..\packages\RavenDB.Tests.Helpers.2.5.2956\lib\net45\Raven.Tests.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Shouldly">
+      <HintPath>..\packages\Shouldly.2.4.0\lib\net40\Shouldly.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -98,26 +98,26 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LearningContractSpotLine.cs" />
-    <Compile Include="ContractSpotLineStationTransformer.cs" />
-    <Compile Include="RavenQuerySuite.cs" />
+    <Compile Include="Data\StationData.cs" />
+    <Compile Include="DriveRavenTestBase.cs" />
+    <Compile Include="MonthFrameSuite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RavenStaticIndexSuite.cs" />
-    <Compile Include="RavenTests\CanCallLastOnArray.cs" />
-    <Compile Include="RavenTransformerSuite.cs" />
-    <Compile Include="SetupTests.cs" />
-    <Compile Include="SpotLines_ByStationAsDynamicField.cs" />
-    <Compile Include="SpotLines_ByStationCode.cs" />
-    <Compile Include="SpotLines_ByStationDescription_FullText.cs" />
-    <Compile Include="SpotLines_ByFirstStationStored.cs" />
-    <Compile Include="SpotLines_LineCountByMonth.cs" />
-    <Compile Include="SpotLines_ByMonth.cs" />
+    <Compile Include="CreateStationFrameHandlerSuite.cs" />
+    <Compile Include="SpotLineSuite.cs" />
+    <Compile Include="StationFrameFactorySuite.cs" />
+    <Compile Include="StationFrameSuite.cs" />
+    <Compile Include="Stubs\StubStationDescriptionGenerator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Prototype.One\Prototype.One.csproj">
+      <Project>{67dc51f2-08b6-4def-a226-5ce021dcb7de}</Project>
+      <Name>Prototype.One</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -3,10 +3,10 @@ using NodaTime;
 
 namespace Learning.RavenDB
 {
-    public class ContractSpotLine
+    public class LearningContractSpotLine
     {
         public string Id { get; set; }
-        public Contract Contract { get; set; }
+        public LearningContract Contract { get; set; }
 
         public LocalDate Month { get; set; }
 
@@ -15,13 +15,13 @@ namespace Learning.RavenDB
         public IEnumerable<string> StationIds { get; set; }
     }
 
-    public class Contract
+    public class LearningContract
     {
         public string Id { get; set; }
         public string Code { get; set; }
     }
 
-    public class Station
+    public class LearningStation
     {
         public string Id { get; set; }
         public string Code { get; set; }

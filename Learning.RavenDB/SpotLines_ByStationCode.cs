@@ -3,7 +3,7 @@ using Raven.Client.Indexes;
 
 namespace Learning.RavenDB
 {
-    public class SpotLines_ByStationCode : AbstractIndexCreationTask<ContractSpotLine>
+    public class SpotLines_ByStationCode : AbstractIndexCreationTask<LearningContractSpotLine>
     {
         // simple index definition - just has a map and no reduce. The projection contains the properties
         // to index, in this case any query against the month property of spot lines could use this index
@@ -14,7 +14,7 @@ namespace Learning.RavenDB
                                {
                                    spotLine.Month,
                                    spotLine.StationDescription,
-                                   Stations = spotLine.StationIds.Select(s => LoadDocument<Station>(s).Code)
+                                   Stations = spotLine.StationIds.Select(s => LoadDocument<LearningStation>(s).Code)
                                };
         }
     }

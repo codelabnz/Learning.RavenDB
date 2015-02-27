@@ -4,7 +4,7 @@ using Raven.Client.Indexes;
 
 namespace Learning.RavenDB
 {
-    public class SpotLines_LineCountByMonth : AbstractIndexCreationTask<ContractSpotLine, SpotLines_LineCountByMonth.ReduceResult>
+    public class SpotLines_LineCountByMonth : AbstractIndexCreationTask<LearningContractSpotLine, SpotLines_LineCountByMonth.ReduceResult>
     {
         public class ReduceResult
         {
