@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using Raven.Client;
+using NodaTime;
 
 namespace Prototype.One
 {
@@ -24,7 +25,7 @@ namespace Prototype.One
 
         public SpotLine AddLine()
         {
-            return new SpotLine(this.Id);
+            return null;// new SpotLine(this.Id);
         }
     }
 
@@ -52,14 +53,75 @@ namespace Prototype.One
         }
     }
 
+    public class StationId
+    {
+        public string Id{get;set;}
+    }
+
     public class SpotLine
     {
-        public SpotLine(string frameId)
+        public SpotLine() 
         {
-            FrameId = frameId;
+            _bookings = new List<Booking>();
         }
 
-        public string FrameId { get; private set; }
+        public SpotLine(IEnumerable<StationId> stations) { }
+
+        //public SpotLine(string frameId)
+        //{
+        //    FrameId = frameId;
+        //}
+
+        //public string FrameId { get; private set; }
+
+        public LocalDate? StartDate { get; private set; }
+        public LocalDate? EndDate { get; private set; }
+
+        List<Booking> _bookings;
+        public IEnumerable<Booking> Bookings { get { return _bookings.AsReadOnly(); } }
+
+        public void PlaceBooking(Booking booking)
+        {
+            CheckDates(booking.AiringOn);
+
+            _bookings.Add(booking);
+        }
+
+        void CheckDates(LocalDate newBookingDate)
+        {
+            if (IsBeforeStartDate(newBookingDate))
+                StartDate = newBookingDate;
+            
+            if (IsAfterEndDate(newBookingDate))
+                EndDate = newBookingDate;
+        }
+
+        bool IsAfterEndDate(LocalDate newBookingDate)
+        {
+            return !EndDate.HasValue || newBookingDate > EndDate;
+        }
+
+        bool IsBeforeStartDate(LocalDate newBookingDate)
+        {
+            return !StartDate.HasValue || newBookingDate < StartDate;
+        }
+    }
+
+    public class Booking
+    {
+        Booking(int spots, LocalDate airingOn)
+        {
+            Spots = spots;
+            AiringOn = airingOn;
+        }
+
+        public int Spots { get; private set; }
+        public LocalDate AiringOn { get; private set; }
+
+        public static Booking For(int spotCount, LocalDate airDate)
+        {
+            return new Booking(spotCount, airDate);
+        }
     }
 
     public class StationFrameFactory
