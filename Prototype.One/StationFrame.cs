@@ -53,19 +53,20 @@ namespace Prototype.One
         }
     }
 
-    public class StationId
-    {
-        public string Id{get;set;}
-    }
+    //public class StationId
+    //{
+    //    public string Id { get; set; }
+
+    //}
 
     public class SpotLine
     {
-        public SpotLine() 
+        public SpotLine()
         {
             _bookings = new List<Booking>();
         }
 
-        public SpotLine(IEnumerable<StationId> stations) { }
+        //public SpotLine(IEnumerable<StationId> stations) { }
 
         //public SpotLine(string frameId)
         //{
@@ -91,7 +92,7 @@ namespace Prototype.One
         {
             if (IsBeforeStartDate(newBookingDate))
                 StartDate = newBookingDate;
-            
+
             if (IsAfterEndDate(newBookingDate))
                 EndDate = newBookingDate;
         }

@@ -20,7 +20,7 @@ namespace Test.Prototype.One
         [Fact]
         public void single_station_spot_line_accept_booking_for_a_day_with_no_bookings()
         {
-            var spotLine = new SpotLine(new[] { new StationId { Id = "stations/1" } });
+            SpotLine spotLine = null;// new SpotLine(new[] { new StationId { Id = "stations/1" } });
             var spots = 2;
             var airingOn = Clock.Today.PlusMonths(1);
             var booking = Booking.For(spots, airingOn);
