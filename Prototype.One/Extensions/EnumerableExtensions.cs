@@ -9,5 +9,10 @@ namespace Prototype.One.Extensions
         {
             return !source.Contains(value);
         }
+
+        public static bool ContainsAll<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> value)
+        {
+            return !source.Except(value).Any();
+        }
     }
 }

@@ -20,42 +20,43 @@ namespace Test.Prototype.One
             Clock.Current = new FakeClock(today);
         }
 
-        [Fact]
-        public void create_line_for_single_station_creates_station_added_event()
-        {
-            var stationId = new StationId { Id = "stations/1" };
+        //[Fact]
+        //public void create_line_for_single_station_creates_station_added_event()
+        //{
+        //    var stationId = new StationId { Id = "stations/1" };
 
-            var line = new BookingLine(stationId);
+        //    var line = new BookingLine(stationId);
 
-            line.Stations.ShouldContain(stationId);
-            line.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
-                                                            && (e as StationAddedEvent).AggregateId == line.Id
-                                                            && (e as StationAddedEvent).Station == stationId);
-        }
+        //    line.Stations.ShouldContain(stationId);
+        //    line.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
+        //                                                    && (e as StationAddedEvent).AggregateId == line.Id
+        //                                                    && (e as StationAddedEvent).Station == stationId);
+        //}
 
-        [Fact]
-        public void create_line_for_combo_of_stations_creates_all_station_added_events()
-        {
-            var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
+        //[Fact]
+        //public void create_line_for_combo_of_stations_creates_all_station_added_events()
+        //{
+        //    var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
 
-            var line = new BookingLine(stationIds);
+        //    var line = new BookingLine(stationIds);
 
-            stationIds.ShouldAllBe(s => line.Stations.Contains(s));
-            line.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
-                                                            && (e as StationAddedEvent).AggregateId == line.Id
-                                                            && (e as StationAddedEvent).Station == stationIds[0]);
-            line.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
-                                                            && (e as StationAddedEvent).AggregateId == line.Id
-                                                            && (e as StationAddedEvent).Station == stationIds[1]);
-        }
+        //    stationIds.ShouldAllBe(s => line.Stations.Contains(s));
+        //    line.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
+        //                                                    && (e as StationAddedEvent).AggregateId == line.Id
+        //                                                    && (e as StationAddedEvent).Station == stationIds[0]);
+        //    line.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
+        //                                                    && (e as StationAddedEvent).AggregateId == line.Id
+        //                                                    && (e as StationAddedEvent).Station == stationIds[1]);
+        //}
 
         [Fact]
         public void add_spots_to_line_creates_spots_added_event()
         {
             var quantity = 5;
             var airingOn = Clock.Today.PlusDays(5);
-            var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
-            var line = new BookingLine(stationIds);
+            //var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
+            //var line = new BookingLine(stationIds);
+            var line = new BookingLine();
 
             line.AddSpots(quantity, airingOn);
 
@@ -70,8 +71,9 @@ namespace Test.Prototype.One
         {
             int initinalQuantity = 5, removeQuantity = 2;
             var airingOn = Clock.Today.PlusDays(5);
-            var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
-            var line = new BookingLine(stationIds);
+            //var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
+            //var line = new BookingLine(stationIds);
+            var line = new BookingLine();
             line.AddSpots(initinalQuantity, airingOn);
 
             line.RemoveSpots(removeQuantity, airingOn);
@@ -87,8 +89,9 @@ namespace Test.Prototype.One
         {
             int initinalQuantity = 5, removeQuantity = 6;
             var airingOn = Clock.Today.PlusDays(5);
-            var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
-            var line = new BookingLine(stationIds);
+            //var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
+            //var line = new BookingLine(stationIds);
+            var line = new BookingLine();
             line.AddSpots(initinalQuantity, airingOn);
 
             Action act = () => line.RemoveSpots(removeQuantity, airingOn);
@@ -96,82 +99,65 @@ namespace Test.Prototype.One
             Should.Throw<InvalidOperationException>(act);
         }
 
-        [Fact]
-        public void change_stations_for_line_creates_station_added_events()
-        {
-            var initialStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
-            var line = new BookingLine(initialStationIds);
-            var changedStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/3" } };
+        //[Fact]
+        //public void change_stations_for_line_creates_station_added_events()
+        //{
+        //    var initialStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
+        //    var line = new BookingLine(initialStationIds);
+        //    var changedStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/3" } };
 
-            line.ChangeStations(changedStationIds);
+        //    line.ChangeStations(changedStationIds);
 
-            line.Stations.ShouldBe(changedStationIds);
-            line.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
-                                                            && (e as StationAddedEvent).AggregateId == line.Id
-                                                            && (e as StationAddedEvent).Station == changedStationIds[1]);
-        }
+        //    line.Stations.ShouldBe(changedStationIds);
+        //    line.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
+        //                                                    && (e as StationAddedEvent).AggregateId == line.Id
+        //                                                    && (e as StationAddedEvent).Station == changedStationIds[1]);
+        //}
 
-        [Fact]
-        public void change_stations_for_line_creates_station_removed_events()
-        {
-            var initialStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
-            var line = new BookingLine(initialStationIds);
-            var changedStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/3" } };
+        //[Fact]
+        //public void change_stations_for_line_creates_station_removed_events()
+        //{
+        //    var initialStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
+        //    var line = new BookingLine(initialStationIds);
+        //    var changedStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/3" } };
 
-            line.ChangeStations(changedStationIds);
+        //    line.ChangeStations(changedStationIds);
 
-            line.GetUncommittedEvents().ShouldContain(e => (e as StationRemovedEvent) != null
-                                                            && (e as StationRemovedEvent).AggregateId == line.Id
-                                                            && (e as StationRemovedEvent).Station == initialStationIds[1]);
-        }
+        //    line.GetUncommittedEvents().ShouldContain(e => (e as StationRemovedEvent) != null
+        //                                                    && (e as StationRemovedEvent).AggregateId == line.Id
+        //                                                    && (e as StationRemovedEvent).Station == initialStationIds[1]);
+        //}
     }
 
-    public class BookingLine
+    public class BookingLine : Aggregate
     {
-        #region aggregate...
-
-        public string Id { get; private set; }
-
-        List<DomainEvent> _events = new List<DomainEvent>();
-        void RaiseEvent(DomainEvent @event)
+        public BookingLine()
         {
-            //var newVersion = this.Version + 1;
-            //@event.AggregateVersion = newVersion;
-
-            //this.uncommittedEvents.Add(@event);
-            //this.Version = newVersion;
-            _events.Add(@event);
-        }
-
-        public IEnumerable<DomainEvent> GetUncommittedEvents()
-        {
-            return _events.ToArray();
-        }
-
-        #endregion
-
-        BookingLine()
-        {
-            _stations = new List<StationId>();
             _bookings = new _Bookings();
         }
 
-        public BookingLine(StationId stationId)
-            : this()
-        {
-            SetStations(new[] { stationId });
-        }
+        //BookingLine()
+        //{
+        //    _stations = new List<StationId>();
+        //    _bookings = new _Bookings();
+        //}
 
-        public BookingLine(IEnumerable<StationId> stationIds)
-            : this()
-        {
-            SetStations(stationIds);
-        }
+        //public BookingLine(StationId stationId)
+        //    : this()
+        //{
+        //    SetStations(new[] { stationId });
+        //}
+
+        //public BookingLine(IEnumerable<StationId> stationIds)
+        //    : this()
+        //{
+        //    SetStations(stationIds);
+        //}
 
         _Bookings _bookings;
 
-        List<StationId> _stations;
-        public IEnumerable<StationId> Stations { get { return _stations; } }
+        //List<StationId> _stations;
+        //public IEnumerable<StationId> Stations { get { return _stations; } }
 
         public void AddSpots(int count, LocalDate airingOn)
         {
@@ -185,10 +171,10 @@ namespace Test.Prototype.One
             RaiseEvent(new SpotsRemovedEvent(this.Id, count, airingOn));
         }
 
-        public void ChangeStations(IEnumerable<StationId> newStationIds)
-        {
-            SetStations(newStationIds);
-        }
+        //public void ChangeStations(IEnumerable<StationId> newStationIds)
+        //{
+        //    SetStations(newStationIds);
+        //}
 
         void IncreaseBooking(int count, LocalDate airingOn)
         {
@@ -200,30 +186,30 @@ namespace Test.Prototype.One
             _bookings[airingOn] = _bookings[airingOn].Remove(count);
         }
 
-        void SetStations(IEnumerable<StationId> stationIds)
-        {
-            AddStations(stationIds);
-            RemoveStations(stationIds);
-        }
+        //void SetStations(IEnumerable<StationId> stationIds)
+        //{
+        //    AddStations(stationIds);
+        //    RemoveStations(stationIds);
+        //}
 
-        void AddStations(IEnumerable<StationId> stationIds)
-        {
-            foreach (var station in _stations.Where(s => stationIds.DoesNotContain(s))
-                                            .ToArray())
-            {
-                _stations.Remove(station);
-                RaiseEvent(new StationRemovedEvent(Id, station));
-            }
-        }
+        //void AddStations(IEnumerable<StationId> stationIds)
+        //{
+        //    foreach (var station in _stations.Where(s => stationIds.DoesNotContain(s))
+        //                                    .ToArray())
+        //    {
+        //        _stations.Remove(station);
+        //        RaiseEvent(new StationRemovedEvent(Id, station));
+        //    }
+        //}
 
-        void RemoveStations(IEnumerable<StationId> stationIds)
-        {
-            foreach (var station in stationIds.Where(s => _stations.DoesNotContain(s)))
-            {
-                _stations.Add(station);
-                RaiseEvent(new StationAddedEvent(Id, station));
-            }
-        }
+        //void RemoveStations(IEnumerable<StationId> stationIds)
+        //{
+        //    foreach (var station in stationIds.Where(s => _stations.DoesNotContain(s)))
+        //    {
+        //        _stations.Add(station);
+        //        RaiseEvent(new StationAddedEvent(Id, station));
+        //    }
+        //}
 
         class _Bookings
         {
@@ -352,4 +338,29 @@ namespace Test.Prototype.One
     }
 
     #endregion
+
+    #region aggregate...
+
+    public abstract class Aggregate
+    {
+        public string Id { get; private set; }
+
+        List<DomainEvent> _events = new List<DomainEvent>();
+        protected void RaiseEvent(DomainEvent @event)
+        {
+            //var newVersion = this.Version + 1;
+            //@event.AggregateVersion = newVersion;
+
+            //this.uncommittedEvents.Add(@event);
+            //this.Version = newVersion;
+            _events.Add(@event);
+        }
+
+        public IEnumerable<DomainEvent> GetUncommittedEvents()
+        {
+            return _events.ToArray();
+        }
+    }
+
+        #endregion
 }

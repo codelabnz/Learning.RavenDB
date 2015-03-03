@@ -112,7 +112,7 @@
     <Compile Include="SpotLineSuite.cs" />
     <Compile Include="StandardSpotBookingSuite.cs" />
     <Compile Include="StationFrameFactorySuite.cs" />
-    <Compile Include="StationFrameSuite.cs" />
+    <Compile Include="StationBookingSuite.cs" />
     <Compile Include="Stubs\StubStationDescriptionGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
