@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NodaTime;
 using NodaTime.Testing;
 using Prototype.One;
-using Prototype.One.Extensions;
 using Shouldly;
+using Test.Prototype.One.Data;
 using Xunit;
 
 namespace Test.Prototype.One
@@ -52,14 +51,17 @@ namespace Test.Prototype.One
         [Fact]
         public void add_spots_to_line_creates_spots_added_event()
         {
+            //
             var quantity = 5;
             var airingOn = Clock.Today.PlusDays(5);
             //var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
             //var line = new BookingLine(stationIds);
             var line = new BookingLine();
 
+            //
             line.AddSpots(quantity, airingOn);
 
+            //
             line.GetUncommittedEvents().ShouldContain(e => (e as SpotsAddedEvent) != null
                                                             && (e as SpotsAddedEvent).AggregateId == line.Id
                                                             && (e as SpotsAddedEvent).Count == quantity
@@ -69,15 +71,15 @@ namespace Test.Prototype.One
         [Fact]
         public void remove_spots_from_line_creates_spots_removed_event()
         {
+            //
             int initinalQuantity = 5, removeQuantity = 2;
             var airingOn = Clock.Today.PlusDays(5);
-            //var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
-            //var line = new BookingLine(stationIds);
-            var line = new BookingLine();
-            line.AddSpots(initinalQuantity, airingOn);
+            var line = Builder.BookingLine.WithSpots(initinalQuantity, airingOn).Build();
 
+            //
             line.RemoveSpots(removeQuantity, airingOn);
 
+            //
             line.GetUncommittedEvents().ShouldContain(e => (e as SpotsRemovedEvent) != null
                                                             && (e as SpotsRemovedEvent).AggregateId == line.Id
                                                             && (e as SpotsRemovedEvent).Count == removeQuantity
@@ -87,15 +89,15 @@ namespace Test.Prototype.One
         [Fact]
         public void remove_spots_more_spots_than_are_booked_throws()
         {
+            //
             int initinalQuantity = 5, removeQuantity = 6;
             var airingOn = Clock.Today.PlusDays(5);
-            //var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
-            //var line = new BookingLine(stationIds);
-            var line = new BookingLine();
-            line.AddSpots(initinalQuantity, airingOn);
+            var line = Builder.BookingLine.WithSpots(initinalQuantity, airingOn).Build();
 
+            //
             Action act = () => line.RemoveSpots(removeQuantity, airingOn);
 
+            //
             Should.Throw<InvalidOperationException>(act);
         }
 
@@ -128,6 +130,8 @@ namespace Test.Prototype.One
         //                                                    && (e as StationRemovedEvent).Station == initialStationIds[1]);
         //}
     }
+
+    public class BookingLineId : AggregateId { }
 
     public class BookingLine : Aggregate
     {
@@ -362,5 +366,35 @@ namespace Test.Prototype.One
         }
     }
 
-        #endregion
+    // is this useful for wrapping Aggregate Ids when used as references?
+    // e.g. see StationBooking.Lines
+    public abstract class AggregateId
+    {
+        public string Id { get; set; }
+
+        public override string ToString()
+        {
+            return Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as AggregateId;
+            if (other == null)
+                return false;
+
+            return other.Id == this.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+
+            hash = hash * 29 + Id.GetHashCode();
+
+            return hash;
+        }
+    }
+
+    #endregion
 }

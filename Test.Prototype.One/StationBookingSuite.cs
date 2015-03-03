@@ -2,6 +2,7 @@
 using System.Linq;
 using Prototype.One.Extensions;
 using Shouldly;
+using Test.Prototype.One.Data;
 using Xunit;
 
 namespace Test.Prototype.One
@@ -11,11 +12,14 @@ namespace Test.Prototype.One
         [Fact]
         public void create_station_booking_creates_station_booking_added_event()
         {
+            //
             var stationDescription = "MCH(ROCK, EDGE)";
             var stationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
 
+            //
             var booking = new StationBooking(stationDescription, stationIds);
 
+            //
             booking.Stations.ShouldBe(stationIds);
             booking.GetUncommittedEvents().ShouldContain(e => (e as StationBookingAddedEvent) != null
                                                             && (e as StationBookingAddedEvent).AggregateId == booking.Id
@@ -25,14 +29,17 @@ namespace Test.Prototype.One
         [Fact]
         public void change_stations_creates_station_added_event()
         {
+            //
             var initalStationDescription = "MCH(ROCK, EDGE)";
             var initialStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
             var booking = new StationBooking(initalStationDescription, initialStationIds);
             var changedStationDescription = "MCH(ROCK, BREEZE)";
             var changedStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/3" } };
 
+            //
             booking.ChangeStations(changedStationDescription, changedStationIds);
 
+            //
             booking.Stations.ShouldBe(changedStationIds);
             booking.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
                                                             && (e as StationAddedEvent).AggregateId == booking.Id
@@ -42,17 +49,15 @@ namespace Test.Prototype.One
         [Fact]
         public void add_line_to_station_booking_creates_booking_line_added_event()
         {
-            var initalStationDescription = "MCH(ROCK, EDGE)";
-            var initialStationIds = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
-            var booking = new StationBooking(initalStationDescription, initialStationIds);
-            //var line = new BookingLine()
+            //
+            var booking = Builder.StationBooking.Build();
+            var line = Builder.BookingLine.Build();
 
-            //booking.AddBookingLine(lineId);
+            //
+            booking.AddBookingLine(line);
 
-            //booking.Stations.ShouldBe(changedStationIds);
-            //booking.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
-            //                                                && (e as StationAddedEvent).AggregateId == booking.Id
-            //                                                && (e as StationAddedEvent).Station == changedStationIds[1]);
+            //
+            booking.Lines.ShouldContain(b => b.ToString() == line.Id);
         }
     }
 
@@ -60,6 +65,7 @@ namespace Test.Prototype.One
     {
         StationBooking()
         {
+            _lines = new List<BookingLineId>();
             _stations = new List<StationId>();
         }
 
@@ -76,10 +82,18 @@ namespace Test.Prototype.One
         List<StationId> _stations;
         public IEnumerable<StationId> Stations { get { return _stations; } }
 
+        List<BookingLineId> _lines;
+        public IEnumerable<BookingLineId> Lines { get { return _lines; } }
+
         public void ChangeStations(string stationDescription, IEnumerable<StationId> stationIds)
         {
             _stationDescription = stationDescription;
             SetStations(stationIds);
+        }
+
+        public void AddBookingLine(BookingLine line)
+        {
+            _lines.Add(new BookingLineId { Id = line.Id });
         }
 
         void SetStations(IEnumerable<StationId> stationIds)
@@ -106,6 +120,8 @@ namespace Test.Prototype.One
                 RaiseEvent(new StationAddedEvent(Id, station));
             }
         }
+
+        
     }
 
     #region events
