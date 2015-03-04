@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NodaTime;
+using NodaTime.Testing;
 using Prototype.One;
 using Prototype.One.Extensions;
 using Raven.Client;
@@ -154,6 +155,19 @@ namespace Test.Prototype.One.Data
         public static BookingLineBuilder BookingLine { get { return BookingLineBuilder.Get(); } }
 
         public static StationBuilder Station { get { return StationBuilder.Get(); } }
+    }
+
+    public static class Testing
+    {
+        public static void Today(LocalDate today)
+        {
+            var todayAsInstant = DateTimeZoneProviders.Tzdb
+                                                    .GetSystemDefault()
+                                                    .AtStrictly(today.AtMidnight())
+                                                    .ToInstant();
+            
+            Clock.Current = new FakeClock(todayAsInstant);
+        }
     }
 
 }

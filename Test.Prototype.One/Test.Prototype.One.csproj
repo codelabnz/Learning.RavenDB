@@ -104,13 +104,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ComboBookingSuite.cs" />
-    <Compile Include="Data\StationData.cs" />
+    <Compile Include="Data\Data.cs" />
     <Compile Include="DriveRavenTestBase.cs" />
     <Compile Include="BookingLineSuite.cs" />
-    <Compile Include="MonthFrameSuite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CreateStationFrameHandlerSuite.cs" />
-    <Compile Include="SpotLineSuite.cs" />
     <Compile Include="StandardSpotBookingSuite.cs" />
     <Compile Include="StationFrameFactorySuite.cs" />
     <Compile Include="StationBookingSuite.cs" />

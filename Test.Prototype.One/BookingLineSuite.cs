@@ -11,13 +11,7 @@ namespace Test.Prototype.One
 {
     public class BookingLineSuite
     {
-        public BookingLineSuite()
-        {
-            var today = DateTimeZoneProviders.Tzdb.GetSystemDefault()
-                                                    .AtStrictly(new LocalDateTime(2015, 02, 05, 00, 00))
-                                                    .ToInstant();
-            Clock.Current = new FakeClock(today);
-        }
+        public BookingLineSuite() { }
 
         [Fact]
         public void create_line_creates_station_added_event()
@@ -103,6 +97,28 @@ namespace Test.Prototype.One
                                                             && (e as BookingLineStationChanged).AggregateId == line.Id
                                                             && (e as BookingLineStationChanged).Station == newStation);
         }
+
+        [Fact]
+        public void move_bookings_by_number_of_months_bookings_should_fall_on_same_day_of_week()
+        {
+            //
+            Testing.Today(new LocalDate(2015, 03, 05));
+            var firstBookingDate = Clock.Today.PlusDays(1);
+            var secondBookingDate = Clock.Today.PlusDays(5);
+            var station = Builder.Station.Build();
+            var line = Builder.BookingLine.ForStation(station)
+                                        .WithSpots(5, firstBookingDate)
+                                        .WithSpots(5, secondBookingDate).Build();
+            
+            var duration = Duration.FromStandardWeeks(4);
+
+            //
+            line.MoveBookingsBy(duration);
+
+            //
+            //line.Bookings
+            throw new Exception("to complete");
+        }
     }
 
     public class BookingLine : Aggregate
@@ -135,6 +151,12 @@ namespace Test.Prototype.One
             RaiseEvent(new SpotsRemoved(count, airingOn));
         }
 
+        public void MoveBookingsBy(Duration duration)
+        {
+            //foreach(var booking in _bookings.All())
+            //    _bookings.Move(booking, booking.)
+        }
+
         public void ChangeStation(StationId newStation)
         {
             Station = newStation;
@@ -165,6 +187,11 @@ namespace Test.Prototype.One
                 {
                     _bookings[index] = value;
                 }
+            }
+
+            public IEnumerable<_Booking> All()
+            {
+                return _bookings.Values;
             }
         }
     }
