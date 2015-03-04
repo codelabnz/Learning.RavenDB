@@ -103,9 +103,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComboBookingSuite.cs" />
     <Compile Include="Data\StationData.cs" />
     <Compile Include="DriveRavenTestBase.cs" />
-    <Compile Include="LineBookingSuite.cs" />
+    <Compile Include="BookingLineSuite.cs" />
     <Compile Include="MonthFrameSuite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CreateStationFrameHandlerSuite.cs" />

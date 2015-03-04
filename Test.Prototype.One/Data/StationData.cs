@@ -65,10 +65,15 @@ namespace Test.Prototype.One.Data
 
         BookingLineBuilder()
         {
+            _defaultStation = Builder.Station.Build();
             _spots = new Dictionary<LocalDate, int>();
         }
 
         int _lastId = 1;
+
+        StationId _defaultStation;
+        StationId _station;
+
         Dictionary<LocalDate, int> _spots;
 
         protected override string _CollectionName
@@ -84,6 +89,12 @@ namespace Test.Prototype.One.Data
             return _builder;
         }
 
+        public BookingLineBuilder ForStation(StationId station)
+        {
+            _station = station;
+            return this;
+        }
+
         public BookingLineBuilder WithSpots(int count, LocalDate airingOn)
         {
             _spots[airingOn] = count;
@@ -92,12 +103,14 @@ namespace Test.Prototype.One.Data
 
         public BookingLine Build()
         {
-            var line = new BookingLine();
+            var line = new BookingLine(_station ?? _defaultStation);
             foreach (var kvp in _spots)
                 line.AddSpots(kvp.Value, kvp.Key);
-            
+
             return SetAggregateId(line);
         }
+
+
     }
 
     public class StationBookingBuilder : AggregateBuilder
@@ -139,6 +152,8 @@ namespace Test.Prototype.One.Data
         public static StationBookingBuilder StationBooking { get { return StationBookingBuilder.Get(); } }
 
         public static BookingLineBuilder BookingLine { get { return BookingLineBuilder.Get(); } }
+
+        public static StationBuilder Station { get { return StationBuilder.Get(); } }
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Prototype.One.Extensions;
 using Shouldly;
@@ -7,6 +8,7 @@ using Xunit;
 
 namespace Test.Prototype.One
 {
+    [Obsolete("There is no need for a \"station container\" concept - stations are required at the booking line level")]
     public class StationBookingSuite
     {
         [Fact]
@@ -41,9 +43,9 @@ namespace Test.Prototype.One
 
             //
             booking.Stations.ShouldBe(changedStationIds);
-            booking.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
-                                                            && (e as StationAddedEvent).AggregateId == booking.Id
-                                                            && (e as StationAddedEvent).Station == changedStationIds[1]);
+            //booking.GetUncommittedEvents().ShouldContain(e => (e as StationAddedEvent) != null
+            //                                                && (e as StationAddedEvent).AggregateId == booking.Id
+            //                                                && (e as StationAddedEvent).Station == changedStationIds[1]);
         }
 
         [Fact]
@@ -57,15 +59,16 @@ namespace Test.Prototype.One
             booking.AddBookingLine(line);
 
             //
-            booking.Lines.ShouldContain(b => b.ToString() == line.Id);
+            booking.Lines.ShouldContain(b => b == line.Id);
         }
     }
 
+    [Obsolete("There is no need for a \"station container\" concept - stations are required at the booking line level")]
     public class StationBooking : Aggregate
     {
         StationBooking()
         {
-            _lines = new List<BookingLineId>();
+            _lines = new List<string>();
             _stations = new List<StationId>();
         }
 
@@ -82,8 +85,8 @@ namespace Test.Prototype.One
         List<StationId> _stations;
         public IEnumerable<StationId> Stations { get { return _stations; } }
 
-        List<BookingLineId> _lines;
-        public IEnumerable<BookingLineId> Lines { get { return _lines; } }
+        List<string> _lines;
+        public IEnumerable<string> Lines { get { return _lines; } }
 
         public void ChangeStations(string stationDescription, IEnumerable<StationId> stationIds)
         {
@@ -93,7 +96,7 @@ namespace Test.Prototype.One
 
         public void AddBookingLine(BookingLine line)
         {
-            _lines.Add(new BookingLineId { Id = line.Id });
+            _lines.Add(line.Id);
         }
 
         void SetStations(IEnumerable<StationId> stationIds)
@@ -108,7 +111,7 @@ namespace Test.Prototype.One
                                             .ToArray())
             {
                 _stations.Remove(station);
-                RaiseEvent(new StationRemovedEvent(Id, station));
+                //RaiseEvent(new StationRemovedEvent(Id, station));
             }
         }
 
@@ -117,11 +120,11 @@ namespace Test.Prototype.One
             foreach (var station in stationIds.Where(s => _stations.DoesNotContain(s)))
             {
                 _stations.Add(station);
-                RaiseEvent(new StationAddedEvent(Id, station));
+                //RaiseEvent(new StationAddedEvent(Id, station));
             }
         }
 
-        
+
     }
 
     #region events
