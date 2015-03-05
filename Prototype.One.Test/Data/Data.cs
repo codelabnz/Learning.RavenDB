@@ -5,7 +5,7 @@ using Prototype.One;
 using Prototype.One.Extensions;
 using Raven.Client;
 
-namespace Test.Prototype.One.Data
+namespace Prototype.One.Test.Data
 {
     public class StationData
     {
@@ -45,22 +45,32 @@ namespace Test.Prototype.One.Data
         }
     }
 
-    public abstract class AggregateBuilder
+    public abstract class AggregateBuilder<T> where T : class
     {
         int _lastId = 1;
+        bool _withId = true;
         protected abstract string _CollectionName { get; }
 
         protected TAggregate SetAggregateId<TAggregate>(TAggregate aggregate)
             where TAggregate : Aggregate
         {
+            if(_withId)
+            {
             var idProperty = typeof(Aggregate).GetProperty("Id");
             idProperty.SetValue(aggregate, "{0}/{1}".Format((object)_CollectionName, _lastId++));
+            }
 
             return aggregate;
         }
+
+        public T WithoutId()
+        {
+            _withId = false;
+            return this as T;
+        }
     }
 
-    public class BookingLineBuilder : AggregateBuilder
+    public class BookingLineBuilder : AggregateBuilder<BookingLineBuilder>
     {
         static BookingLineBuilder _builder;
 
@@ -90,6 +100,13 @@ namespace Test.Prototype.One.Data
             return _builder;
         }
 
+        public static BookingLineBuilder Get(bool withNoId)
+        {
+            _builder = new BookingLineBuilder();
+
+            return _builder;
+        }
+
         public BookingLineBuilder ForStation(StationId station)
         {
             _station = station;
@@ -106,15 +123,13 @@ namespace Test.Prototype.One.Data
         {
             var line = new BookingLine(_station ?? _defaultStation);
             foreach (var kvp in _spots)
-                line.AddSpots(kvp.Value, kvp.Key);
+                line.ChangeBooking(kvp.Value, kvp.Key);
 
             return SetAggregateId(line);
         }
-
-
     }
 
-    public class StationBookingBuilder : AggregateBuilder
+    public class StationBookingBuilder : AggregateBuilder<StationBookingBuilder>
     {
         static StationBookingBuilder _builder;
 

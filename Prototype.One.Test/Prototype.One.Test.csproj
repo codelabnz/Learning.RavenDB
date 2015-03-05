@@ -7,8 +7,8 @@
     <ProjectGuid>{8FD7C01D-E626-49AE-A139-1F074CD09C37}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Test.Prototype.One</RootNamespace>
-    <AssemblyName>Test.Prototype.One</AssemblyName>
+    <RootNamespace>Prototype.One.Test</RootNamespace>
+    <AssemblyName>Prototype.One.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -74,6 +74,9 @@
     <Reference Include="Raven.Client.Lightweight">
       <HintPath>..\packages\RavenDB.Client.2.5.2956\lib\net45\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
+    <Reference Include="Raven.Client.NodaTime">
+      <HintPath>..\packages\RavenDB.Client.NodaTime.2.5.10\lib\net40-Client\Raven.Client.NodaTime.dll</HintPath>
+    </Reference>
     <Reference Include="Raven.Database">
       <HintPath>..\packages\RavenDB.Database.2.5.2956\lib\net45\Raven.Database.dll</HintPath>
     </Reference>
@@ -107,9 +110,9 @@
     <Compile Include="Data\Data.cs" />
     <Compile Include="DriveRavenTestBase.cs" />
     <Compile Include="BookingLineSuite.cs" />
+    <Compile Include="IntegrationSuite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CreateStationFrameHandlerSuite.cs" />
-    <Compile Include="StandardSpotBookingSuite.cs" />
+    <Compile Include="SpotBookingIntegrationSuite.cs" />
     <Compile Include="StationFrameFactorySuite.cs" />
     <Compile Include="StationBookingSuite.cs" />
     <Compile Include="Stubs\StubStationDescriptionGenerator.cs" />
@@ -122,7 +125,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

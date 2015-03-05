@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using Prototype.One;
 using Shouldly;
-using Test.Prototype.One.Data;
-using Test.Prototype.One.Stubs;
+using Prototype.One.Test.Data;
+using Prototype.One.Test.Stubs;
 using Xunit;
 
-namespace Test.Prototype.One
+namespace Prototype.One.Test
 {
     public class StationFrameFactorySuite : DriveRavenTestBase
     {

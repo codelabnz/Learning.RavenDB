@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Shouldly;
 using Prototype.One.Extensions;
-using Test.Prototype.One.Data;
+using Prototype.One.Test.Data;
 using Xunit;
 using Prototype.One;
 
-namespace Test.Prototype.One
+namespace Prototype.One.Test
 {
     public class ComboBookingSuite
     {
@@ -54,15 +54,6 @@ namespace Test.Prototype.One
         public void change_station_for_combo_booking_creates_station_removed_event()
         {
             throw new NotImplementedException();
-        }
-
-        [Fact]
-        public void x()
-        {
-            // when changing a month, the bookings on the line should be shifted 28 days * (month difference between new month and old month)
-
-            var today = Clock.Today;
-            var nextMonth = today.PlusDays(56); // shift by 2 months...
         }
     }
 

@@ -2,7 +2,7 @@
 using Raven.Client.Document;
 using Raven.Tests.Helpers;
 
-namespace Test.Prototype.One
+namespace Prototype.One.Test
 {
     public class DriveRavenTestBase : RavenTestBase
     {

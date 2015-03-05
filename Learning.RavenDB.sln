@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learning.RavenDB", "Learnin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prototype.One", "Prototype.One\Prototype.One.csproj", "{67DC51F2-08B6-4DEF-A226-5CE021DCB7DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Prototype.One", "Test.Prototype.One\Test.Prototype.One.csproj", "{8FD7C01D-E626-49AE-A139-1F074CD09C37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prototype.One.Test", "Prototype.One.Test\Prototype.One.Test.csproj", "{8FD7C01D-E626-49AE-A139-1F074CD09C37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using NodaTime;
-using NodaTime.Testing;
 using Prototype.One;
+using Prototype.One.Extensions;
+using Raven.Imports.Newtonsoft.Json;
 using Shouldly;
-using Test.Prototype.One.Data;
+using Prototype.One.Test.Data;
 using Xunit;
 
-namespace Test.Prototype.One
+namespace Prototype.One.Test
 {
     public class BookingLineSuite
     {
@@ -39,7 +42,7 @@ namespace Test.Prototype.One
             var line = Builder.BookingLine.ForStation(station).Build();
 
             //
-            line.AddSpots(quantity, airingOn);
+            line.ChangeBooking(quantity, airingOn);
 
             //
             line.GetUncommittedEvents().ShouldContain(e => (e as SpotsAdded) != null
@@ -52,17 +55,17 @@ namespace Test.Prototype.One
         public void remove_spots_from_line_creates_spots_removed_event()
         {
             //
-            int initinalQuantity = 5, removeQuantity = 2;
+            int initialQuantity = 5, newQuantity = 2;
             var airingOn = Clock.Today.PlusDays(5);
-            var line = Builder.BookingLine.WithSpots(initinalQuantity, airingOn).Build();
+            var line = Builder.BookingLine.WithSpots(initialQuantity, airingOn).Build();
 
             //
-            line.RemoveSpots(removeQuantity, airingOn);
+            line.ChangeBooking(newQuantity, airingOn);
 
             //
             line.GetUncommittedEvents().ShouldContain(e => (e as SpotsRemoved) != null
                                                             && (e as SpotsRemoved).AggregateId == line.Id
-                                                            && (e as SpotsRemoved).Count == removeQuantity
+                                                            && (e as SpotsRemoved).Count == initialQuantity - newQuantity
                                                             && (e as SpotsRemoved).AiringOn == airingOn);
         }
 
@@ -70,12 +73,12 @@ namespace Test.Prototype.One
         public void remove_spots_more_spots_than_are_booked_throws()
         {
             //
-            int initinalQuantity = 5, removeQuantity = 6;
+            int initialQuantity = 5, newQuantity = -1;
             var airingOn = Clock.Today.PlusDays(5);
-            var line = Builder.BookingLine.WithSpots(initinalQuantity, airingOn).Build();
+            var line = Builder.BookingLine.WithSpots(initialQuantity, airingOn).Build();
 
             //
-            Action act = () => line.RemoveSpots(removeQuantity, airingOn);
+            Action act = () => line.ChangeBooking(newQuantity, airingOn);
 
             //
             Should.Throw<InvalidOperationException>(act);
@@ -109,15 +112,19 @@ namespace Test.Prototype.One
             var line = Builder.BookingLine.ForStation(station)
                                         .WithSpots(5, firstBookingDate)
                                         .WithSpots(5, secondBookingDate).Build();
-            
-            var duration = Duration.FromStandardWeeks(4);
+            var moveTo = firstBookingDate.MonthBegin().PlusMonths(3);
+
 
             //
-            //line.MoveBookingsBy(duration);
+            line.MoveTo(moveTo);
 
             //
-            //line.Bookings
-            throw new Exception("to complete");
+            line.SpotBookings.GroupBy(b => b.AiringOn.DayOfWeek)
+                                .Select(b => new
+                                {
+                                    DayOfWeek = b.Key,
+                                    SpotCount = b.Sum(s => s.Count)
+                                });
         }
 
         [Fact]
@@ -141,7 +148,7 @@ namespace Test.Prototype.One
     {
         protected BookingLine()
         {
-            _bookings = new _Bookings();
+            _bookings = new Bookings();
         }
 
         public BookingLine(StationId stationId)
@@ -151,26 +158,16 @@ namespace Test.Prototype.One
             RaiseEvent(new BookingLineCreated(stationId));
         }
 
-        _Bookings _bookings;
+        Bookings _bookings;
+        public IReadOnlyCollection<Booking> SpotBookings { get { return _bookings; } }
 
         public StationId Station { get; private set; }
 
-        public void AddSpots(int count, LocalDate airingOn)
+        public void ChangeBooking(int count, LocalDate airingOn)
         {
-            IncreaseBooking(count, airingOn);
-            RaiseEvent(new SpotsAdded(count, airingOn));
-        }
+            if (count < 0) throw new InvalidOperationException("Cannot book less than zero spots");
 
-        public void RemoveSpots(int count, LocalDate airingOn)
-        {
-            DecreaseBooking(count, airingOn);
-            RaiseEvent(new SpotsRemoved(count, airingOn));
-        }
-
-        public void MoveBookingsBy(Duration duration)
-        {
-            //foreach(var booking in _bookings.All())
-            //    _bookings.Move(booking, booking.)
+            RaiseEvent(_bookings.ChangeFor(count, airingOn).Execute());
         }
 
         public void ChangeStation(StationId newStation)
@@ -179,64 +176,115 @@ namespace Test.Prototype.One
             RaiseEvent(new BookingLineStationChanged(Station));
         }
 
-        void IncreaseBooking(int count, LocalDate airingOn)
+        public void MoveTo(LocalDate moveTo)
         {
-            _bookings[airingOn] = _bookings[airingOn].Add(count);
+
+        }
+    }
+
+    public class Bookings : KeyedCollection<LocalDate, Booking>
+    {
+        protected override LocalDate GetKeyForItem(Booking item)
+        {
+            return item.AiringOn;
         }
 
-        void DecreaseBooking(int count, LocalDate airingOn)
+        internal BookingChange ChangeFor(int count, LocalDate airingOn)
         {
-            _bookings[airingOn] = _bookings[airingOn].Remove(count);
+            var existing = Contains(airingOn) ? this[airingOn] : Booking.Empty(airingOn);
+            return (count - existing.Count) > 0 ? (BookingChange)new AddSpotsChange(this, count, airingOn) : new RemoveSpotsChange(this, count, airingOn);
         }
 
-        class _Bookings
+        internal abstract class BookingChange
         {
-            Dictionary<LocalDate, _Booking> _bookings = new Dictionary<LocalDate, _Booking>();
-
-            public _Booking this[LocalDate index]
+            internal BookingChange(Bookings bookings, int count, LocalDate airingOn)
             {
-                get
-                {
-                    return _bookings.ContainsKey(index) ? _bookings[index] : _Booking.Empty();
-                }
-                internal set
-                {
-                    _bookings[index] = value;
-                }
+                _bookings = bookings;
+                _count = count;
+                _airingOn = airingOn;
             }
 
-            public IEnumerable<_Booking> All()
+            protected Bookings _bookings;
+            protected int _count;
+            protected LocalDate _airingOn;
+            public abstract DomainEvent Execute();
+        }
+
+        class AddSpotsChange : BookingChange
+        {
+            internal AddSpotsChange(Bookings bookings, int count, LocalDate airingOn)
+                : base(bookings, count, airingOn)
+            { }
+
+            public override DomainEvent Execute()
             {
-                return _bookings.Values;
+                var existing = _bookings.Contains(_airingOn) ? _bookings[_airingOn] : Booking.Empty(_airingOn);
+                _bookings.Remove(_airingOn);
+
+                _bookings.Add(existing.ChangeSpotCount(_count));
+
+                return new SpotsAdded(_count - existing.Count, _airingOn);
+            }
+        }
+
+        class RemoveSpotsChange : BookingChange
+        {
+            internal RemoveSpotsChange(Bookings bookings, int count, LocalDate airingOn)
+                : base(bookings, count, airingOn)
+            { }
+
+            public override DomainEvent Execute()
+            {
+                var existing = _bookings.Contains(_airingOn) ? _bookings[_airingOn] : Booking.Empty(_airingOn);
+                _bookings.Remove(_airingOn);
+
+                if (_count > 0)
+                    _bookings.Add(existing.ChangeSpotCount(_count));
+
+                return new SpotsRemoved(existing.Count - _count, _airingOn);
             }
         }
     }
 
-    public class _Booking
+    public class Booking
     {
-        internal _Booking(int count)
+        Booking() { }
+
+        internal Booking(int count, LocalDate airingOn)
         {
             Count = count;
+            AiringOn = airingOn;
         }
 
         public int Count { get; private set; }
+        public LocalDate AiringOn { get; private set; }
 
-        public _Booking Add(int toAdd)
+        public Booking ChangeSpotCount(int count)
         {
-            return new _Booking(Count + toAdd);
+            return new Booking(count, AiringOn);
         }
 
-        public _Booking Remove(int toRemove)
+        public static Booking Empty(LocalDate airingOn)
         {
-            var newCount = Count - toRemove;
-            if (newCount < 0) throw new InvalidOperationException();
-
-            return new _Booking(newCount);
+            return new Booking(0, airingOn);
         }
 
-        public static _Booking Empty()
+        public override bool Equals(object obj)
         {
-            return new _Booking(0);
+            var other = obj as Booking;
+            if (other == null)
+                return false;
+
+            return other.AiringOn == this.AiringOn;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+
+            hash = hash * 29 + AiringOn.GetHashCode();
+
+            return hash;
         }
     }
 
@@ -327,6 +375,7 @@ namespace Test.Prototype.One
     {
         public string Id { get; private set; }
 
+        [JsonIgnore]
         List<DomainEvent> _events = new List<DomainEvent>();
         protected void RaiseEvent(DomainEvent @event)
         {
@@ -338,42 +387,17 @@ namespace Test.Prototype.One
             _events.Add(@event);
         }
 
-        public virtual IEnumerable<DomainEvent> GetUncommittedEvents()
+        public IEnumerable<DomainEvent> GetUncommittedEvents()
         {
             foreach (var @event in _events)
                 @event.AggregateId = Id;
 
             return _events.ToArray();
         }
-    }
 
-    // is this useful for wrapping Aggregate Ids when used as references?
-    // e.g. see StationBooking.Lines
-    public abstract class AggregateId
-    {
-        public string Id { get; set; }
-
-        public override string ToString()
+        public void ClearUncommittedEvents()
         {
-            return Id;
-        }
-
-        public override bool Equals(object obj)
-        {
-            var other = obj as AggregateId;
-            if (other == null)
-                return false;
-
-            return other.Id == this.Id;
-        }
-
-        public override int GetHashCode()
-        {
-            int hash = 17;
-
-            hash = hash * 29 + Id.GetHashCode();
-
-            return hash;
+            _events.Clear();
         }
     }
 

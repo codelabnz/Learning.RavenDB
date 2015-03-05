@@ -63,7 +63,7 @@ namespace Prototype.One
     {
         public SpotLine()
         {
-            _bookings = new List<Booking>();
+            _bookings = new List<_Booking>();
         }
 
         //public SpotLine(IEnumerable<StationId> stations) { }
@@ -78,10 +78,10 @@ namespace Prototype.One
         public LocalDate? StartDate { get; private set; }
         public LocalDate? EndDate { get; private set; }
 
-        List<Booking> _bookings;
-        public IEnumerable<Booking> Bookings { get { return _bookings.AsReadOnly(); } }
+        List<_Booking> _bookings;
+        public IEnumerable<_Booking> Bookings { get { return _bookings.AsReadOnly(); } }
 
-        public void PlaceBooking(Booking booking)
+        public void PlaceBooking(_Booking booking)
         {
             CheckDates(booking.AiringOn);
 
@@ -108,9 +108,9 @@ namespace Prototype.One
         }
     }
 
-    public class Booking
+    public class _Booking
     {
-        Booking(int spots, LocalDate airingOn)
+        _Booking(int spots, LocalDate airingOn)
         {
             Spots = spots;
             AiringOn = airingOn;
@@ -119,9 +119,9 @@ namespace Prototype.One
         public int Spots { get; private set; }
         public LocalDate AiringOn { get; private set; }
 
-        public static Booking For(int spotCount, LocalDate airDate)
+        public static _Booking For(int spotCount, LocalDate airDate)
         {
-            return new Booking(spotCount, airDate);
+            return new _Booking(spotCount, airDate);
         }
     }
 

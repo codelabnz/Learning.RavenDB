@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Prototype.One.Extensions;
 using Shouldly;
-using Test.Prototype.One.Data;
+using Prototype.One.Test.Data;
 using Xunit;
 
-namespace Test.Prototype.One
+namespace Prototype.One.Test
 {
     [Obsolete("There is no need for a \"station container\" concept - stations are required at the booking line level")]
     public class StationBookingSuite

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Prototype.One;
 
-namespace Test.Prototype.One.Stubs
+namespace Prototype.One.Test.Stubs
 {
     public class StubStationDescriptionGenerator : IStationDescriptionGenerator
     {
