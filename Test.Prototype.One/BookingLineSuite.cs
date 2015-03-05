@@ -113,11 +113,27 @@ namespace Test.Prototype.One
             var duration = Duration.FromStandardWeeks(4);
 
             //
-            line.MoveBookingsBy(duration);
+            //line.MoveBookingsBy(duration);
 
             //
             //line.Bookings
             throw new Exception("to complete");
+        }
+
+        [Fact]
+        public void x()
+        {
+            // to move between to dates
+            var d1 = new LocalDate(2015, 06, 01);
+            var d2 = new LocalDate(2015, 10, 01);
+
+            // find the number of days between the dates
+            var days = Period.Between(d1, d2, PeriodUnits.Days).Days;
+
+            // determine how many FULL weeks fall between the dates
+            days = days - (days % 7);
+
+            // add the resulting number of weeks (as days) to each booking in the existing line
         }
     }
 
