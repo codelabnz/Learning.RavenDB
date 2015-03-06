@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Shouldly;
+using FluentAssertions;
 using Prototype.One.Extensions;
 using Prototype.One.Test.Data;
 using Xunit;
-using Prototype.One;
 
 namespace Prototype.One.Test
 {
@@ -22,12 +21,8 @@ namespace Prototype.One.Test
             var combo = new ComboBooking(description, stations);
 
             //
-            combo.GetUncommittedEvents().ShouldContain(e => (e as StationAddedToComboBooking) != null
-                                                            && (e as StationAddedToComboBooking).AggregateId == combo.Id
-                                                            && (e as StationAddedToComboBooking).Station == stations[0]);
-            combo.GetUncommittedEvents().ShouldContain(e => (e as StationAddedToComboBooking) != null
-                                                            && (e as StationAddedToComboBooking).AggregateId == combo.Id
-                                                            && (e as StationAddedToComboBooking).Station == stations[1]);
+            combo.GetUncommittedEvents()
+                    .ShouldAllBeEquivalentTo(stations.Select(s => new StationAddedToComboBooking(s) { AggregateId = combo.Id }));
         }
 
         [Fact]
@@ -44,10 +39,11 @@ namespace Prototype.One.Test
             combo.ChangeStations(newDescription, newStations);
 
             //
-            combo.Stations.ShouldBe(newStations);
-            combo.GetUncommittedEvents().ShouldContain(e => (e as StationAddedToComboBooking) != null
-                                                            && (e as StationAddedToComboBooking).AggregateId == combo.Id
-                                                            && (e as StationAddedToComboBooking).Station == newStations[1]);
+            combo.Stations.ShouldAllBeEquivalentTo(newStations);
+            combo.GetUncommittedEvents().Should()
+                                        .ContainSingle(e => e.GetType() == typeof(StationAddedToComboBooking)
+                                                            && ((StationAddedToComboBooking)e).AggregateId == combo.Id
+                                                            && ((StationAddedToComboBooking)e).Station == newStations[1]);
         }
 
         [Fact]

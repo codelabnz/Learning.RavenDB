@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using NodaTime;
-using Prototype.One;
-using Prototype.One.Extensions;
-using Raven.Imports.Newtonsoft.Json;
-using Shouldly;
-using FluentAssertions;
-using Prototype.One.Test.Data;
-using Xunit;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
+using NodaTime;
+using Prototype.One.Extensions;
+using Prototype.One.Test.Data;
+using Raven.Imports.Newtonsoft.Json;
+using Xunit;
 
 namespace Prototype.One.Test
 {
@@ -30,10 +27,11 @@ namespace Prototype.One.Test
             var line = new BookingLine(bookingStart, station);
 
             //
-            line.Station.ShouldBe(station);
-            line.GetUncommittedEvents().ShouldContain(e => (e as BookingLineCreatedEvent) != null
+            line.Station.Should().Be(station, "the line was created for station {0}".Format(station));
+            line.GetUncommittedEvents().Should()
+                                        .ContainSingle(e => e.GetType() == typeof(BookingLineCreatedEvent)
                                                             && (e as BookingLineCreatedEvent).AggregateId == line.Id
-                                                            && (e as BookingLineCreatedEvent).Station == station);
+                                                            && (e as BookingLineCreatedEvent).Station == station, "the line was created for station {0}".Format(station));
         }
 
         [Fact]
@@ -87,14 +85,15 @@ namespace Prototype.One.Test
             line.ChangeBooking(quantity, airingOn);
 
             //
-            line.GetUncommittedEvents().ShouldContain(e => (e as SpotsAddedEvent) != null
-                                                            && (e as SpotsAddedEvent).AggregateId == line.Id
-                                                            && (e as SpotsAddedEvent).Count == quantity
-                                                            && (e as SpotsAddedEvent).AiringOn == airingOn);
+            line.GetUncommittedEvents().Should()
+                                        .ContainSingle(e => e.GetType() == typeof(SpotsAddedEvent)
+                                                            && ((SpotsAddedEvent)e).AggregateId == line.Id
+                                                            && ((SpotsAddedEvent)e).Count == quantity
+                                                            && ((SpotsAddedEvent)e).AiringOn == airingOn, "the booking increased to {0}".Format(quantity));
         }
 
         [Fact]
-        public void remove_spots_from_line_creates_spots_removed_event()
+        public void decreasing_booking_creates_spots_removed_event()
         {
             //
             int initialQuantity = 5, newQuantity = 2;
@@ -105,14 +104,15 @@ namespace Prototype.One.Test
             line.ChangeBooking(newQuantity, airingOn);
 
             //
-            line.GetUncommittedEvents().ShouldContain(e => (e as SpotsRemovedEvent) != null
-                                                            && (e as SpotsRemovedEvent).AggregateId == line.Id
-                                                            && (e as SpotsRemovedEvent).Count == initialQuantity - newQuantity
-                                                            && (e as SpotsRemovedEvent).AiringOn == airingOn);
+            line.GetUncommittedEvents().Should()
+                                        .ContainSingle(e => e.GetType() == typeof(SpotsRemovedEvent)
+                                                            && ((SpotsRemovedEvent)e).AggregateId == line.Id
+                                                            && ((SpotsRemovedEvent)e).Count == initialQuantity - newQuantity
+                                                            && ((SpotsRemovedEvent)e).AiringOn == airingOn, "the booking was decreased to {0}".Format(newQuantity));
         }
 
         [Fact]
-        public void remove_spots_more_spots_than_are_booked_throws()
+        public void change_booking_negative_quantity_throws()
         {
             //
             int initialQuantity = 5, newQuantity = -1;
@@ -123,7 +123,7 @@ namespace Prototype.One.Test
             Action act = () => line.ChangeBooking(newQuantity, airingOn);
 
             //
-            Should.Throw<InvalidOperationException>(act);
+            act.ShouldThrow<InvalidOperationException>("the quantity to book was a negative value");
         }
 
         [Fact]
@@ -137,10 +137,11 @@ namespace Prototype.One.Test
             line.ChangeStation(newStation);
 
             //
-            line.Station.ShouldBe(newStation);
-            line.GetUncommittedEvents().ShouldContain(e => (e as BookingLineStationChangedEvent) != null
-                                                            && (e as BookingLineStationChangedEvent).AggregateId == line.Id
-                                                            && (e as BookingLineStationChangedEvent).Station == newStation);
+            line.Station.Should().Be(newStation, "the station was changed to {0}".Format(newStation));
+            line.GetUncommittedEvents().Should()
+                                        .ContainSingle(e => e.GetType() == typeof(BookingLineStationChangedEvent)
+                                                            && ((BookingLineStationChangedEvent)e).AggregateId == line.Id
+                                                            && ((BookingLineStationChangedEvent)e).Station == newStation, "the station was changed to {0}".Format(newStation));
         }
 
         [Fact]
@@ -160,7 +161,6 @@ namespace Prototype.One.Test
 
             //
             var movedBooking = line.SpotBookings.SingleOrDefault(b => b.Quantity == bookingQuantity);
-
             movedBooking.Should().NotBeNull("the quantity of spots shouldn't have changed");
             movedBooking.AiringOn.Should().NotBe(airingOn, "the spots should have moved");
             movedBooking.AiringOn.DayOfWeek.Should().Be(airingOn.DayOfWeek, "the spots should still fall on {0:dddd}".Format(airingOn));

@@ -92,9 +92,6 @@
     <Reference Include="Raven.Tests.Helpers">
       <HintPath>..\packages\RavenDB.Tests.Helpers.2.5.2956\lib\net45\Raven.Tests.Helpers.dll</HintPath>
     </Reference>
-    <Reference Include="Shouldly">
-      <HintPath>..\packages\Shouldly.2.4.0\lib\net40\Shouldly.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -119,8 +116,6 @@
     <Compile Include="IntegrationSuite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpotBookingIntegrationSuite.cs" />
-    <Compile Include="StationFrameFactorySuite.cs" />
-    <Compile Include="StationBookingSuite.cs" />
     <Compile Include="Stubs\StubStationDescriptionGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
