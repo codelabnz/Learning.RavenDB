@@ -48,19 +48,19 @@ namespace Prototype.One.Test
             //                                                && (e as StationAddedEvent).Station == changedStationIds[1]);
         }
 
-        [Fact]
-        public void add_line_to_station_booking_creates_booking_line_added_event()
-        {
-            //
-            var booking = Builder.StationBooking.Build();
-            var line = Builder.BookingLine.Build();
+        //[Fact]
+        //public void add_line_to_station_booking_creates_booking_line_added_event()
+        //{
+        //    //
+        //    var booking = Builder.StationBooking.Build();
+        //    var line = Builder.BookingLine.Build();
 
-            //
-            booking.AddBookingLine(line);
+        //    //
+        //    booking.AddBookingLine(line);
 
-            //
-            booking.Lines.ShouldContain(b => b == line.Id);
-        }
+        //    //
+        //    booking.Lines.ShouldContain(b => b == line.Id);
+        //}
     }
 
     [Obsolete("There is no need for a \"station container\" concept - stations are required at the booking line level")]
@@ -77,7 +77,7 @@ namespace Prototype.One.Test
         {
             _stationDescription = stationDescription;
             SetStations(stationIds);
-            RaiseEvent(new StationBookingAddedEvent(Id, _stations));
+            RaiseEvent(new StationBookingAddedEvent(_stations));
         }
 
         string _stationDescription;
@@ -131,13 +131,11 @@ namespace Prototype.One.Test
 
     public class StationBookingAddedEvent : DomainEvent
     {
-        public StationBookingAddedEvent(string aggregateId, IEnumerable<StationId> stations)
+        public StationBookingAddedEvent(IEnumerable<StationId> stations)
         {
-            AggregateId = aggregateId;
             Stations = stations;
         }
 
-        public string AggregateId { get; private set; }
         public IEnumerable<StationId> Stations { get; private set; }
     }
 

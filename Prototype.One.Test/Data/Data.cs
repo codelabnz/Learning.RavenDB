@@ -47,7 +47,7 @@ namespace Prototype.One.Test.Data
 
     public abstract class AggregateBuilder<T> where T : class
     {
-        int _lastId = 1;
+        static int _lastId = 1;
         bool _withId = true;
         protected abstract string _CollectionName { get; }
 
@@ -72,15 +72,15 @@ namespace Prototype.One.Test.Data
 
     public class BookingLineBuilder : AggregateBuilder<BookingLineBuilder>
     {
-        static BookingLineBuilder _builder;
-
         BookingLineBuilder()
         {
+            _defaultBookingStart = Clock.Today.MonthBegin();
             _defaultStation = Builder.Station.Build();
             _spots = new Dictionary<LocalDate, int>();
         }
 
-        int _lastId = 1;
+        LocalDate? _defaultBookingStart;
+        LocalDate? _bookingStart;
 
         StationId _defaultStation;
         StationId _station;
@@ -94,17 +94,7 @@ namespace Prototype.One.Test.Data
 
         public static BookingLineBuilder Get()
         {
-            if (_builder == null)
-                _builder = new BookingLineBuilder();
-
-            return _builder;
-        }
-
-        public static BookingLineBuilder Get(bool withNoId)
-        {
-            _builder = new BookingLineBuilder();
-
-            return _builder;
+            return new BookingLineBuilder();
         }
 
         public BookingLineBuilder ForStation(StationId station)
@@ -121,7 +111,7 @@ namespace Prototype.One.Test.Data
 
         public BookingLine Build()
         {
-            var line = new BookingLine(_station ?? _defaultStation);
+            var line = new BookingLine((_bookingStart ?? _defaultBookingStart).Value,  _station ?? _defaultStation);
             foreach (var kvp in _spots)
                 line.ChangeBooking(kvp.Value, kvp.Key);
 
@@ -129,44 +119,8 @@ namespace Prototype.One.Test.Data
         }
     }
 
-    public class StationBookingBuilder : AggregateBuilder<StationBookingBuilder>
-    {
-        static StationBookingBuilder _builder;
-
-        StationBookingBuilder() { }
-
-        int _lastId = 1;
-        string _defaultStationDescription = "MCH(ROCK, BREEZE)";
-        IEnumerable<StationId> _defaultStations = new[] { new StationId { Id = "stations/1" }, new StationId { Id = "stations/2" } };
-
-        string _stationDescription = null;
-        IEnumerable<StationId> _stations = null;
-
-
-        protected override string _CollectionName
-        {
-            get { return "stationbookings"; }
-        }
-
-        public static StationBookingBuilder Get()
-        {
-            if (_builder == null)
-                _builder = new StationBookingBuilder();
-
-            return _builder;
-        }
-
-        public StationBooking Build()
-        {
-            var booking = new StationBooking(_stationDescription ?? _defaultStationDescription, _stations ?? _defaultStations);
-            return SetAggregateId(booking);
-        }
-    }
-
     public static class Builder
     {
-        public static StationBookingBuilder StationBooking { get { return StationBookingBuilder.Get(); } }
-
         public static BookingLineBuilder BookingLine { get { return BookingLineBuilder.Get(); } }
 
         public static StationBuilder Station { get { return StationBuilder.Get(); } }
