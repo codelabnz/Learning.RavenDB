@@ -22,7 +22,7 @@ namespace Prototype.One.Test
 
             //
             combo.GetUncommittedEvents()
-                    .ShouldAllBeEquivalentTo(stations.Select(s => new StationAddedToComboBooking(s) { AggregateId = combo.Id }));
+                    .ShouldAllBeEquivalentTo(stations.Select(s => new StationAddedToComboBookingEvent(s) { AggregateId = combo.Id }));
         }
 
         [Fact]
@@ -41,15 +41,30 @@ namespace Prototype.One.Test
             //
             combo.Stations.ShouldAllBeEquivalentTo(newStations);
             combo.GetUncommittedEvents().Should()
-                                        .ContainSingle(e => e.GetType() == typeof(StationAddedToComboBooking)
-                                                            && ((StationAddedToComboBooking)e).AggregateId == combo.Id
-                                                            && ((StationAddedToComboBooking)e).Station == newStations[1]);
+                                        .ContainSingle(e => e.GetType() == typeof(StationAddedToComboBookingEvent)
+                                                            && ((StationAddedToComboBookingEvent)e).AggregateId == combo.Id
+                                                            && ((StationAddedToComboBookingEvent)e).Station == newStations[1]);
         }
 
         [Fact]
         public void change_station_for_combo_booking_creates_station_removed_event()
         {
-            throw new NotImplementedException();
+            //
+            var initialDescription = "COMBO_STATION_DESCRIPTION";
+            var initialStations = new[] { Builder.Station.Build(), Builder.Station.Build() };
+            var newDescription = "COMBO_STATION_DESCRIPTION_CHANGED";
+            var newStations = new[] { initialStations[0], Builder.Station.Build() };
+            var combo = new ComboBooking(initialDescription, initialStations);
+
+            //
+            combo.ChangeStations(newDescription, newStations);
+
+            //
+            combo.Stations.ShouldAllBeEquivalentTo(newStations);
+            combo.GetUncommittedEvents().Should()
+                                        .ContainSingle(e => e.GetType() == typeof(StationRemovedFromComboBookingEvent)
+                                                            && ((StationRemovedFromComboBookingEvent)e).AggregateId == combo.Id
+                                                            && ((StationRemovedFromComboBookingEvent)e).Station == initialStations[1]);
         }
     }
 
@@ -79,20 +94,31 @@ namespace Prototype.One.Test
             foreach (var station in stations.Where(s => _stations.DoesNotContain(s)))
             {
                 _stations.Add(station);
-                this.RaiseEvent(new StationAddedToComboBooking(station));
+                this.RaiseEvent(new StationAddedToComboBookingEvent(station));
             }
 
             foreach (var station in _stations.Where(s => stations.DoesNotContain(s))
                                                 .ToList())
             {
                 _stations.Remove(station);
+                this.RaiseEvent(new StationRemovedFromComboBookingEvent(station));
             }
         }
     }
 
-    public class StationAddedToComboBooking : DomainEvent
+    public class StationAddedToComboBookingEvent : DomainEvent
     {
-        public StationAddedToComboBooking(StationId station)
+        public StationAddedToComboBookingEvent(StationId station)
+        {
+            Station = station;
+        }
+
+        public StationId Station { get; private set; }
+    }
+
+    public class StationRemovedFromComboBookingEvent : DomainEvent
+    {
+        public StationRemovedFromComboBookingEvent(StationId station)
         {
             Station = station;
         }
