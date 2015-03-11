@@ -16,7 +16,37 @@ namespace Prototype.One.Test
         public BookingLineSuite() { }
 
         [Fact]
-        public void create_line_change_quantity_rollback_event()
+        public void change_quantity_multiple_times_rebuild_object_in_versions()
+        {
+            //
+            var finalQuantity = 10;
+            var airingOn = Clock.Today.PlusDays(5);
+            var station = Builder.Station.Build();
+            var originalLine = Builder.BookingLine.ForStation(station).Build();
+
+            //
+            originalLine.ChangeBooking(finalQuantity - 3, airingOn);
+            originalLine.ChangeBooking(finalQuantity - 8, airingOn);
+            originalLine.ChangeBooking(finalQuantity, airingOn);
+
+            //
+            originalLine.SpotBookings.Single()
+                            .Quantity.Should().Be(finalQuantity);
+
+            //rebuild object to play back from start to end
+            var rebuildLine = new BookingLine(originalLine.Id, originalLine.Events);
+
+            rebuildLine.Should().Be(originalLine);
+
+            //rebuild object to version 2 (0 based index)
+            var rebuildToVersion = new BookingLine(originalLine.Id, originalLine.Events.Take(3));
+            rebuildToVersion.SpotBookings.Single().Quantity.Should().Be(2);
+            rebuildToVersion.Station.Should().Be(station);
+
+        }
+
+        [Fact]
+        public void create_line_change_quantity_rebuild_object()
         {
             //
             var quantity = 5;
@@ -173,6 +203,27 @@ namespace Prototype.One.Test
         }
 
         [Fact]
+        public void change_station_for_line_rebuild_object()
+        {
+            //
+            StationId initialStation = Builder.Station.Build(), newStation = Builder.Station.Build();
+            var line = Builder.BookingLine.ForStation(initialStation).Build();
+
+            //
+            line.ChangeStation(newStation);
+
+            //
+            line.Station.Should().Be(newStation, "the station was changed to {0}".Format(newStation));
+          
+            //check that the event was raised
+            line.Events.Should().ContainSingle(e => e.GetType() == typeof(ChangeStationVersionedEvent) && ((ChangeStationVersionedEvent)e).Station == newStation);
+
+            var rebuildLine = new BookingLine(line.Id, line.Events);
+            rebuildLine.Station.Should().Be(newStation);
+
+        }
+
+        [Fact]
         public void move_bookings_by_number_of_months_bookings_should_fall_on_same_day_of_week()
         {
             //
@@ -196,32 +247,14 @@ namespace Prototype.One.Test
         }
     }
 
-    public interface IVersionedEvent
-    {
-        string SourceId { get; set; }
-        int Version { get; set; }
-    }
-
-    public abstract class VersionedEvent : IVersionedEvent
-    {
-        public string SourceId { get; set; }
-        public int Version { get; set; }
-    }
-
-    public interface IEventSourced
-    {
-        string Id { get; }
-        int Version { get; }
-        IEnumerable<IVersionedEvent> Events { get; }
-    }
-
+   
     public class BookingLine : Aggregate
     {
         public BookingLine()
         {
             _bookings = new Bookings();
 
-            base.Handles<BookingLineCreatedVersionedEvent>(x =>
+            Handles<BookingLineCreatedVersionedEvent>(x =>
             {
                 this.Station = x.StationId;
                 this._bookingStart = x.BookingStart;
@@ -229,10 +262,23 @@ namespace Prototype.One.Test
                 RaiseEvent(new BookingLineCreatedEvent(this.Station));
             });
 
-            base.Handles<ChangeBookingVersionedEvent>(x =>
+            Handles<ChangeBookingVersionedEvent>(x =>
             {
                 if (x.Quantity < 0) throw new InvalidOperationException("Cannot book less than zero spots");
                 RaiseEvent(_bookings.ChangeQuantity(x.AiringOn, x.Quantity));
+            });
+
+            Handles<ChangeStationVersionedEvent>(x =>
+                {
+                    Station = x.Station;
+                    RaiseEvent(new BookingLineStationChangedEvent(Station));
+                });
+
+            Handles<MoveToVersionedEvent>(x =>
+            {
+                var daysToMove = DetermineDaysToMove(x.MoveTo);
+                foreach (var booking in _bookings)
+                    RaiseEvent(_bookings.Move(booking.AiringOn, daysToMove));
             });
 
         }
@@ -245,11 +291,8 @@ namespace Prototype.One.Test
         public BookingLine(LocalDate bookingStart, StationId stationId)
             : this(Guid.NewGuid().ToString())
         {
-            //_bookingStart = bookingStart;
-            //Station = stationId;
-            //RaiseEvent(new BookingLineCreatedEvent(stationId));
-
-            this.Update(new BookingLineCreatedVersionedEvent() { BookingStart = bookingStart, StationId = stationId });
+       
+            Update(new BookingLineCreatedVersionedEvent() { BookingStart = bookingStart, StationId = stationId });
 
         }
 
@@ -269,20 +312,17 @@ namespace Prototype.One.Test
 
         public void ChangeBooking(int quantity, LocalDate airingOn)
         {
-            this.Update(new ChangeBookingVersionedEvent() { AiringOn = airingOn, Quantity = quantity });
+            Update(new ChangeBookingVersionedEvent() { AiringOn = airingOn, Quantity = quantity });
         }
 
         public void ChangeStation(StationId newStation)
         {
-            Station = newStation;
-            RaiseEvent(new BookingLineStationChangedEvent(Station));
+            Update(new ChangeStationVersionedEvent() { Station = newStation });
         }
 
         public void MoveTo(LocalDate moveTo)
         {
-            var daysToMove = DetermineDaysToMove(moveTo);
-            foreach (var booking in _bookings)
-                RaiseEvent(_bookings.Move(booking.AiringOn, daysToMove));
+            Update(new MoveToVersionedEvent() { MoveTo = moveTo });
         }
 
         int DetermineDaysToMove(LocalDate moveTo)
@@ -480,8 +520,34 @@ namespace Prototype.One.Test
         }
     }
 
+    #region event sourced setup
+    public interface IVersionedEvent
+    {
+        string SourceId { get; set; }
+        int Version { get; set; }
+    }
+
+    public abstract class VersionedEvent : IVersionedEvent
+    {
+        public string SourceId { get; set; }
+        public int Version { get; set; }
+    }
+
+    public interface IEventSourced
+    {
+        string Id { get; }
+        int Version { get; }
+        IEnumerable<IVersionedEvent> Events { get; }
+    }
+
+    #endregion
 
     #region event source events
+
+    public class MoveToVersionedEvent : VersionedEvent
+    {
+        public LocalDate MoveTo { get; set; }
+    }
     public class BookingLineCreatedVersionedEvent : VersionedEvent
     {
         public StationId StationId { get; set; }
@@ -492,6 +558,11 @@ namespace Prototype.One.Test
     {
         public int Quantity { get; set;}
         public LocalDate AiringOn { get; set; }
+    }
+
+    public class ChangeStationVersionedEvent : VersionedEvent
+    {
+        public StationId Station { get; set; }
     }
 
     #endregion
