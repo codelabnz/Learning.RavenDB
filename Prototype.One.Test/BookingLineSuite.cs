@@ -16,6 +16,34 @@ namespace Prototype.One.Test
         public BookingLineSuite() { }
 
         [Fact]
+        public void create_line_change_quantity_rollback_event()
+        {
+            //
+            var quantity = 5;
+            var airingOn = Clock.Today.PlusDays(5);
+            var station = Builder.Station.Build();
+
+            //first event will be the created event
+            var line = Builder.BookingLine.ForStation(station).Build();
+            //second event will be change booking event
+            line.ChangeBooking(quantity, airingOn);
+
+            //test quantity of spot bookings
+            line.SpotBookings.Single()
+                            .Quantity.Should().Be(quantity);
+
+            //these are all the past events that made up the current state of the line booking
+            var pastEvents = line.Events.ToList();
+            var lineId = line.Id;
+
+            var newLine = new BookingLine(lineId, pastEvents);
+            //compare the state of the old and new objects
+            newLine.Should().Be(line);
+
+
+        }
+
+        [Fact]
         public void create_line_creates_station_added_event()
         {
             //
@@ -168,19 +196,61 @@ namespace Prototype.One.Test
         }
     }
 
+    public interface IVersionedEvent
+    {
+        string SourceId { get; set; }
+        int Version { get; set; }
+    }
+
+    public abstract class VersionedEvent : IVersionedEvent
+    {
+        public string SourceId { get; set; }
+        public int Version { get; set; }
+    }
+
+    public interface IEventSourced
+    {
+        string Id { get; }
+        int Version { get; }
+        IEnumerable<IVersionedEvent> Events { get; }
+    }
+
     public class BookingLine : Aggregate
     {
-        protected BookingLine()
+        public BookingLine()
         {
             _bookings = new Bookings();
+
+            base.Handles<BookingLineCreatedVersionedEvent>(x =>
+            {
+                this.Station = x.StationId;
+                this._bookingStart = x.BookingStart;
+
+                RaiseEvent(new BookingLineCreatedEvent(this.Station));
+            });
+
+            base.Handles<ChangeBookingVersionedEvent>(x =>
+            {
+                if (x.Quantity < 0) throw new InvalidOperationException("Cannot book less than zero spots");
+                RaiseEvent(_bookings.ChangeQuantity(x.AiringOn, x.Quantity));
+            });
+
+        }
+
+        public BookingLine(string id) : this()
+        {
+            this.Id = id;
         }
 
         public BookingLine(LocalDate bookingStart, StationId stationId)
-            : this()
+            : this(Guid.NewGuid().ToString())
         {
-            _bookingStart = bookingStart;
-            Station = stationId;
-            RaiseEvent(new BookingLineCreatedEvent(stationId));
+            //_bookingStart = bookingStart;
+            //Station = stationId;
+            //RaiseEvent(new BookingLineCreatedEvent(stationId));
+
+            this.Update(new BookingLineCreatedVersionedEvent() { BookingStart = bookingStart, StationId = stationId });
+
         }
 
         LocalDate _bookingStart;
@@ -199,9 +269,7 @@ namespace Prototype.One.Test
 
         public void ChangeBooking(int quantity, LocalDate airingOn)
         {
-            if (quantity < 0) throw new InvalidOperationException("Cannot book less than zero spots");
-
-            RaiseEvent(_bookings.ChangeQuantity(airingOn, quantity));
+            this.Update(new ChangeBookingVersionedEvent() { AiringOn = airingOn, Quantity = quantity });
         }
 
         public void ChangeStation(StationId newStation)
@@ -225,6 +293,35 @@ namespace Prototype.One.Test
             // return FULL weeks between the dates
             return days - (days % 7);
         }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as BookingLine;
+            if (other == null)
+                return false;
+
+            return other.Id == this.Id && other.Station.Equals(this.Station);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+
+            hash = hash * 29 + Id.GetHashCode();
+            hash = hash * 29 + Station.GetHashCode();
+
+            return hash;
+        }
+
+        #region eventSourcing
+       
+
+        public BookingLine(string Id, IEnumerable<IVersionedEvent> history)
+            : this(Id)
+        {
+            this.LoadFrom(history);
+        }
+        #endregion
     }
 
     public class Bookings : IEnumerable<Booking>
@@ -383,11 +480,28 @@ namespace Prototype.One.Test
         }
     }
 
+
+    #region event source events
+    public class BookingLineCreatedVersionedEvent : VersionedEvent
+    {
+        public StationId StationId { get; set; }
+        public LocalDate BookingStart { get; set; }
+    }
+
+    public class ChangeBookingVersionedEvent : VersionedEvent
+    {
+        public int Quantity { get; set;}
+        public LocalDate AiringOn { get; set; }
+    }
+
+    #endregion
+
     #region events
 
     public abstract class DomainEvent
     {
         public string AggregateId { get; set; }
+        int Version { get; set; }
     }
 
     public class BookingLineCreatedEvent : DomainEvent
@@ -441,9 +555,9 @@ namespace Prototype.One.Test
 
     #region aggregate...
 
-    public abstract class Aggregate
+    public abstract class Aggregate : IEventSourced
     {
-        public string Id { get; private set; }
+        public string Id { get; set; }
 
         [JsonIgnore]
         List<DomainEvent> _events = new List<DomainEvent>();
@@ -469,6 +583,46 @@ namespace Prototype.One.Test
         {
             _events.Clear();
         }
+
+        #region Event Source Events
+        private int version = -1;
+        public int Version { get { return this.version; } }
+
+        [JsonIgnore]
+        private readonly Dictionary<Type, Action<IVersionedEvent>> handlers = new Dictionary<Type, Action<IVersionedEvent>>();
+        [JsonIgnore]
+        private readonly List<IVersionedEvent> pendingEvents = new List<IVersionedEvent>();
+
+
+        protected void Handles<TEvent>(Action<TEvent> handler)
+        {
+            this.handlers.Add(typeof(TEvent), @event => handler((TEvent)@event));
+        }
+
+        protected void LoadFrom(IEnumerable<IVersionedEvent> pastEvents)
+        {
+            foreach (var e in pastEvents)
+            {
+                this.handlers[e.GetType()].Invoke(e);
+                this.version = e.Version;
+            }
+        }
+
+        protected void Update(VersionedEvent e)
+        {
+            e.SourceId = this.Id;
+            e.Version = this.version + 1;
+            this.handlers[e.GetType()].Invoke(e);
+            this.version = e.Version;
+            this.pendingEvents.Add(e);
+        }
+        public IEnumerable<IVersionedEvent> Events
+        {
+            get { return this.pendingEvents; }
+        }
+        #endregion
+
+
     }
 
     #endregion
